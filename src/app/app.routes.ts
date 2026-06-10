@@ -16,11 +16,6 @@ export const routes: Routes = [
     loadComponent: () => import('./login/login').then((m) => m.LoginComponent),
   },
   {
-    path: 'registro',
-    canActivate: [guestGuard],
-    loadComponent: () => import('./registro/registro').then((m) => m.Registro),
-  },
-  {
     path: 'vista-general',
     canActivate: [authGuard],
     loadComponent: () => import('./vista-general/vista-general').then((m) => m.VistaGeneral),

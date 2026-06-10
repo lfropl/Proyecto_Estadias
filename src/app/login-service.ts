@@ -30,27 +30,6 @@ export class LoginService {
     password: '123456',
   };
 
-  registrarUsuario(datos: Omit<UsuarioLocal, 'id'>): { success: boolean; error?: string } {
-    if (!isPlatformBrowser(this.platformId)) {
-      return { success: false, error: 'Disponible solo en navegador.' };
-    }
-    const usuarios = this.leerUsuarios();
-    const correo = datos.correo.trim().toLowerCase();
-    const existe = usuarios.some((u) => u.correo.toLowerCase() === correo);
-    if (existe) {
-      return { success: false, error: 'Ese correo ya esta registrado.' };
-    }
-
-    const nuevo: UsuarioLocal = {
-      id: `usr_${Date.now()}`,
-      ...datos,
-      correo,
-    };
-    usuarios.push(nuevo);
-    localStorage.setItem(this.usuariosKey, JSON.stringify(usuarios));
-    return { success: true };
-  }
-
   login(username: string, password: string): boolean {
     if (!isPlatformBrowser(this.platformId)) {
       this.authError$.next('Disponible solo en navegador.');
@@ -106,16 +85,6 @@ export class LoginService {
     } catch {
       return null;
     }
-  }
-
-  obtenerUsuarios(): UsuarioLocal[] {
-    return this.leerUsuarios();
-  }
-
-  eliminarUsuario(id: string): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    const actualizados = this.leerUsuarios().filter((u) => u.id !== id);
-    localStorage.setItem(this.usuariosKey, JSON.stringify(actualizados));
   }
 
   private leerUsuarios(): UsuarioLocal[] {

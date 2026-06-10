@@ -33,8 +33,4 @@ export class LoginComponent {
       this.router.navigate(['/vista-general']);
     }
   }
-
-  irARegistro(): void {
-    this.router.navigate(['/registro']);
-  }
 }
