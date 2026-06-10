@@ -1,0 +1,185 @@
+:host {
+  --tgj-red: #d31219;
+  --tgj-red-dark: #a30e14;
+  --tgj-gray: #2d3236;
+  --tgj-page-bg: #f7f7f8;
+}
+
+ion-content.registro-page {
+  --background: var(--tgj-page-bg);
+}
+
+.login-backdrop,
+.login-center,
+.login-card,
+.login-title-block,
+.login-title-accent,
+.login-title,
+.login-form,
+.form-row,
+.form-label,
+.form-field,
+.form-control,
+.login-submit,
+.login-footer-links {
+  /* Reuse login palette and layout naming */
+}
+
+.login-backdrop {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #ffffff 0%, var(--tgj-page-bg) 35%, var(--tgj-page-bg) 100%);
+}
+
+.login-center {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 40rem;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 4px 24px rgba(45, 50, 54, 0.08);
+  padding: 2rem;
+}
+
+.login-title-block {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.2rem;
+}
+
+.login-title-accent {
+  width: 4px;
+  align-self: stretch;
+  background: var(--tgj-red);
+}
+
+.login-title {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--tgj-gray);
+}
+
+.login-error,
+.login-success {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.login-error {
+  color: var(--tgj-red);
+  background: rgba(211, 18, 25, 0.08);
+}
+
+.login-success {
+  color: #1b5e20;
+  background: rgba(27, 94, 32, 0.1);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: minmax(6rem, 1fr) minmax(0, 2fr);
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  text-align: right;
+  color: #4a5056;
+}
+
+.form-control {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--tgj-gray);
+  background: #f0f1f3;
+  padding: 0.55rem 0.4rem 0.5rem;
+}
+
+.login-submit {
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  color: #fff;
+  background: var(--tgj-red);
+  border: none;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.login-footer-links {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.login-footer-links a {
+  color: #b01018;
+  text-decoration: underline;
+}
+
+.panel-registros {
+  margin-top: 1.25rem;
+  border-top: 1px solid #eceff1;
+  padding-top: 1rem;
+}
+
+.panel-title {
+  margin: 0 0 0.75rem;
+  color: var(--tgj-gray);
+  font-size: 1rem;
+}
+
+.registro-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid #f1f3f4;
+}
+
+.registro-item:first-of-type {
+  border-top: none;
+}
+
+.registro-nombre {
+  margin: 0;
+  font-weight: 600;
+}
+
+.registro-detalle {
+  margin: 0.15rem 0 0;
+  color: #5f6368;
+  font-size: 0.9rem;
+}
+
+.demo-note {
+  margin-bottom: 0.75rem;
+}
+
+.btn-delete {
+  border: 1px solid var(--tgj-red);
+  color: var(--tgj-red);
+  background: #fff;
+  border-radius: 4px;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+}

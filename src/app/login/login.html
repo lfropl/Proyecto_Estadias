@@ -1,0 +1,56 @@
+<ion-content class="login-page" [fullscreen]="true">
+  <div class="login-backdrop" aria-hidden="true"></div>
+  <div class="login-center">
+    <div class="login-card">
+      <img
+        class="login-logo"
+        src="/img/tgj-logo.png"
+        width="220"
+        height="auto"
+        alt="TGJ LOGISTICS" />
+
+      <div class="login-title-block">
+        <span class="login-title-accent" aria-hidden="true"></span>
+        <h1 class="login-title">Iniciar Sesión</h1>
+      </div>
+
+      @if (errorMessage) {
+        <p class="login-error" role="alert">{{ errorMessage }}</p>
+      }
+
+      <form class="login-form" (submit)="$event.preventDefault(); submit()">
+        <div class="form-row">
+          <label class="form-label" for="login-user">Usuario:</label>
+          <div class="form-field">
+            <input
+              id="login-user"
+              class="form-control"
+              type="text"
+              name="username"
+              [(ngModel)]="username"
+              autocomplete="username" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="login-pass">Contraseña:</label>
+          <div class="form-field">
+            <input
+              id="login-pass"
+              class="form-control"
+              type="password"
+              name="password"
+              [(ngModel)]="password"
+              autocomplete="current-password" />
+          </div>
+        </div>
+
+        <button type="submit" class="login-submit">Iniciar Sesión</button>
+      </form>
+
+      <div class="login-footer-links">
+        <button type="button" class="link-like-btn" (click)="irARegistro()">Registro</button>
+      </div>
+    </div>
+  </div>
+</ion-content>

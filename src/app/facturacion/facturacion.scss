@@ -1,0 +1,163 @@
+.fc-shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 0 2rem;
+}
+
+.fc-head h2 {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 1.35rem;
+}
+
+.fc-eyebrow {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.fc-help {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+  max-width: 52rem;
+}
+
+.fc-alert {
+  margin: 1rem 0;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  background: #fde8e8;
+  color: #8b1a1a;
+  font-size: 0.9rem;
+}
+
+.fc-empty {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  border-radius: 10px;
+  background: #f5f5f5;
+  color: #555;
+}
+
+.fc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.fc-card {
+  border: 1px solid #e6e6e6;
+  border-radius: 12px;
+  padding: 1rem 1.15rem;
+  background: #fff;
+}
+
+.fc-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.fc-card-head h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.fc-chip {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background: #f0f0f0;
+}
+
+.fc-dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.5rem 1rem;
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+}
+
+.fc-dl dt {
+  margin: 0;
+  color: #888;
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.fc-dl dd {
+  margin: 0.1rem 0 0;
+}
+
+.fc-block {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid #eee;
+}
+
+.fc-sub {
+  margin: 0 0 0.45rem;
+  font-size: 0.85rem;
+}
+
+.fc-files {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.fc-pill {
+  font-size: 0.78rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  background: #eee;
+}
+
+.fc-pill-ok {
+  background: #e6f7ed;
+  color: #1b5e20;
+}
+
+.fc-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.fc-btn-ghost {
+  background: transparent;
+  color: #c62828;
+  text-decoration: underline;
+}
+
+.fc-upload {
+  display: block;
+  margin-top: 0.35rem;
+}
+
+.fc-upload-label {
+  display: block;
+  font-size: 0.78rem;
+  color: #666;
+  margin-bottom: 0.25rem;
+}
+
+.fc-input {
+  font-size: 0.85rem;
+}
+
+.fc-muted {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #888;
+}

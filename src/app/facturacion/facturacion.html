@@ -1,0 +1,71 @@
+<section class="fc-shell" aria-label="Facturación">
+  <header class="fc-head">
+    <div>
+      <span class="fc-eyebrow">Operación</span>
+      <h2>Facturación</h2>
+      <p class="fc-help">
+        Aquí aparecen los viajes que ya tienen POD y el seguimiento completo en Vista general. Sube el PDF de la factura por viaje.
+      </p>
+    </div>
+  </header>
+
+  @if (errorMsg) {
+    <div class="fc-alert" role="alert">{{ errorMsg }}</div>
+  }
+
+  @if (!viajes.length) {
+    <div class="fc-empty">No hay viajes listos para facturar. Completa el seguimiento y el POD en Vista general.</div>
+  } @else {
+    <div class="fc-list">
+      @for (v of viajes; track trackById($index, v)) {
+        <article class="fc-card">
+          <div class="fc-card-head">
+            <h3>{{ v.nombre }}</h3>
+            <span class="fc-chip">{{ v.cliente || 'Sin cliente' }}</span>
+          </div>
+          <dl class="fc-dl">
+            <div><dt>Unidad</dt><dd>{{ v.unidad || '—' }}</dd></div>
+            <div><dt>Operador</dt><dd>{{ v.operador || '—' }}</dd></div>
+            <div><dt>Ruta</dt><dd>{{ v.ruta || '—' }}</dd></div>
+            <div><dt>Referencia</dt><dd>{{ v.referencia || '—' }}</dd></div>
+            <div><dt>ETA carga</dt><dd>{{ v.seguimientos[0]?.etaCarga || v.etaCarga || '—' }}</dd></div>
+            <div><dt>ETA descarga</dt><dd>{{ v.seguimientos[0]?.etaDescarga || '—' }}</dd></div>
+          </dl>
+
+          <div class="fc-block">
+            <h4 class="fc-sub">POD (desde monitoreo)</h4>
+            @if (v.archivosAdjuntos.length) {
+              <div class="fc-files">
+                @for (adj of v.archivosAdjuntos; track adj.nombre + '-' + $index) {
+                  <span class="fc-pill">{{ adj.nombre }}</span>
+                  <button type="button" class="fc-btn fc-btn-ghost" (click)="verArchivo(adj)">Ver</button>
+                }
+              </div>
+            } @else {
+              <p class="fc-muted">Sin POD.</p>
+            }
+          </div>
+
+          <div class="fc-block">
+            <h4 class="fc-sub">Factura (PDF)</h4>
+            @if (v.facturaPdf) {
+              <div class="fc-files">
+                <span class="fc-pill fc-pill-ok">{{ v.facturaPdf.nombre }}</span>
+                <button type="button" class="fc-btn fc-btn-ghost" (click)="verArchivo(v.facturaPdf)">Ver</button>
+                <button type="button" class="fc-btn fc-btn-ghost" (click)="quitarFactura(v.id)">Quitar</button>
+              </div>
+            }
+            <label class="fc-upload">
+              <span class="fc-upload-label">{{ v.facturaPdf ? 'Reemplazar PDF' : 'Subir PDF de factura' }}</span>
+              <input
+                class="fc-input"
+                type="file"
+                accept="application/pdf"
+                (change)="onFacturaPdfSeleccionada($event, v.id)" />
+            </label>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

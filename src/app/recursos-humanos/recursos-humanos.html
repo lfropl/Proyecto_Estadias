@@ -1,0 +1,164 @@
+<section class="gf-shell" aria-label="Recursos humanos">
+  <header class="gf-head">
+    <div class="gf-title">
+      <span class="gf-eyebrow">Catálogo</span>
+      <h2>Recursos humanos</h2>
+    </div>
+  </header>
+
+  <div class="gf-card">
+    <h3 class="gf-subtitle">Alta de operadores</h3>
+    <div class="gf-form">
+      <label class="gf-field">
+        <span class="gf-label">Nombre</span>
+        <input class="gf-input" type="text" placeholder="Nombre" [(ngModel)]="nombre" />
+      </label>
+      <label class="gf-field">
+        <span class="gf-label">Apellido paterno</span>
+        <input class="gf-input" type="text" placeholder="Apellido paterno" [(ngModel)]="apellidoPaterno" />
+      </label>
+      <label class="gf-field">
+        <span class="gf-label">Apellido materno</span>
+        <input class="gf-input" type="text" placeholder="Apellido materno" [(ngModel)]="apellidoMaterno" />
+      </label>
+      <label class="gf-field">
+        <span class="gf-label">Folio apto médico</span>
+        <input class="gf-input" type="text" placeholder="Folio apto médico" [(ngModel)]="folioAptoMedico" />
+      </label>
+      <label class="gf-field">
+        <span class="gf-label">Vencimiento apto médico</span>
+        <input class="gf-input" type="date" [(ngModel)]="vencimientoAptoMedico" />
+      </label>
+      <label class="gf-field">
+        <span class="gf-label">RFC</span>
+        <input class="gf-input" type="text" placeholder="RFC" [(ngModel)]="rfc" />
+      </label>
+      <label class="gf-field">
+        <span class="gf-label">Folio licencia</span>
+        <input class="gf-input" type="text" placeholder="Folio licencia" [(ngModel)]="folioLicencia" />
+      </label>
+      <label class="gf-field">
+        <span class="gf-label">Vencimiento licencia</span>
+        <input class="gf-input" type="date" [(ngModel)]="vencimientoLicencia" />
+      </label>
+      <label class="gf-field">
+        <span class="gf-label">Estatus</span>
+        <select class="gf-input" [(ngModel)]="estatus">
+          <option value="activo">Activo</option>
+          <option value="baja">Baja</option>
+        </select>
+      </label>
+
+      <div class="gf-actions">
+        <button type="button" class="gf-btn gf-btn-primary" (click)="guardarOperador()">Guardar operador</button>
+        @if (errorMsg) {
+          <div class="gf-msg gf-msg-error">{{ errorMsg }}</div>
+        }
+        @if (exitoMsg) {
+          <div class="gf-msg gf-msg-ok">{{ exitoMsg }}</div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de edición de operadores -->
+  @if (modoEdicion && operadorEnEdicion) {
+    <div class="modal-backdrop" (click)="cancelarEdicion()"></div>
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Editar Operador</h3>
+          <button type="button" class="modal-close" (click)="cancelarEdicion()">×</button>
+        </div>
+        <div class="modal-body">
+          <form class="gf-form">
+            <label class="gf-field">
+              <span class="gf-label">Nombre</span>
+              <input class="gf-input" type="text" [(ngModel)]="nombre" name="nombre" />
+            </label>
+            <label class="gf-field">
+              <span class="gf-label">Apellido Paterno</span>
+              <input class="gf-input" type="text" [(ngModel)]="apellidoPaterno" name="apellidoPaterno" />
+            </label>
+            <label class="gf-field">
+              <span class="gf-label">Apellido Materno</span>
+              <input class="gf-input" type="text" [(ngModel)]="apellidoMaterno" name="apellidoMaterno" />
+            </label>
+            <label class="gf-field">
+              <span class="gf-label">Folio Apto Médico</span>
+              <input class="gf-input" type="text" [(ngModel)]="folioAptoMedico" name="folioAptoMedico" />
+            </label>
+            <label class="gf-field">
+              <span class="gf-label">Vencimiento Apto Médico</span>
+              <input class="gf-input" type="date" [(ngModel)]="vencimientoAptoMedico" name="vencimientoAptoMedico" />
+            </label>
+            <label class="gf-field">
+              <span class="gf-label">RFC</span>
+              <input class="gf-input" type="text" [(ngModel)]="rfc" name="rfc" />
+            </label>
+            <label class="gf-field">
+              <span class="gf-label">Folio Licencia</span>
+              <input class="gf-input" type="text" [(ngModel)]="folioLicencia" name="folioLicencia" />
+            </label>
+            <label class="gf-field">
+              <span class="gf-label">Vencimiento Licencia</span>
+              <input class="gf-input" type="date" [(ngModel)]="vencimientoLicencia" name="vencimientoLicencia" />
+            </label>
+            @if (errorMsg) {
+              <div class="gf-msg gf-msg-error">{{ errorMsg }}</div>
+            }
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="gf-btn gf-btn-ghost" (click)="cancelarEdicion()">Cancelar</button>
+          <button type="button" class="gf-btn gf-btn-primary" (click)="guardarEdicionOperador()">Guardar cambios</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="gf-card">
+    <h3 class="gf-subtitle">Operadores registrados</h3>
+    <div class="gf-table-wrap">
+      <table class="gf-table" aria-label="Operadores en recursos humanos">
+        <thead>
+          <tr>
+            <th>Nombre completo</th>
+            <th>Estatus</th>
+            <th>RFC</th>
+            <th>Folio apto médico</th>
+            <th>Vencimiento apto</th>
+            <th>Folio licencia</th>
+            <th>Vencimiento licencia</th>
+            <th>Estado licencia</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (op of operadores; track op.id) {
+            <tr>
+              <td class="gf-strong">{{ op.nombre }} {{ op.apellidoPaterno }} {{ op.apellidoMaterno }}</td>
+              <td><span class="gf-pill">activo</span></td>
+              <td>{{ op.rfc }}</td>
+              <td>{{ op.folioAptoMedico || '—' }}</td>
+              <td [class.gf-text-danger]="esAlertaVencimiento(op.vencimientoAptoMedico)">{{ op.vencimientoAptoMedico || '—' }}</td>
+              <td>{{ op.folioLicencia }}</td>
+              <td>{{ op.vencimientoLicencia || '—' }}</td>
+              <td [class.gf-text-danger]="esAlertaVencimiento(op.vencimientoLicencia)">
+                {{ estadoVencimiento(op.vencimientoLicencia) }}
+              </td>
+              <td class="gf-right">
+                <button type="button" class="gf-btn gf-btn-ghost" (click)="eliminarOperador(op.id)">Eliminar</button>
+              </td>
+            </tr>
+          }
+          @if (!operadores.length) {
+            <tr>
+              <td colspan="9" class="gf-empty">Todavía no hay operadores dados de alta en RH.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>

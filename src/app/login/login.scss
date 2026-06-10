@@ -1,0 +1,243 @@
+:host {
+  /* TGJ LOGISTICS */
+  --tgj-red: #d31219;
+  --tgj-red-dark: #a30e14;
+  --tgj-gray: #2d3236;
+  --tgj-gray-mid: #4a5056;
+  --tgj-input-bg: #f0f1f3;
+  --tgj-page-bg: #f7f7f8;
+  --tgj-link: #b01018;
+  --ion-background-color: var(--tgj-page-bg);
+}
+
+ion-content.login-page {
+  --background: var(--tgj-page-bg);
+  --padding-start: 0;
+  --padding-end: 0;
+  --padding-top: 0;
+  --padding-bottom: 0;
+}
+
+.login-backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    var(--tgj-page-bg) 35%,
+    var(--tgj-page-bg) 100%
+  );
+  /* motion lines, inspired by the TGJ “T” */
+  background-image: repeating-linear-gradient(
+    105deg,
+    rgba(211, 18, 25, 0.04) 0,
+    rgba(211, 18, 25, 0.04) 1px,
+    transparent 1px,
+    transparent 20px
+  );
+}
+
+.login-center {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  position: relative;
+  z-index: 1;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 32rem;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 4px 24px rgba(45, 50, 54, 0.08);
+  padding: 2.5rem 2rem 2rem;
+}
+
+.login-logo {
+  display: block;
+  margin: 0 auto 1.75rem;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.login-title-block {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.75rem;
+}
+
+.login-title-accent {
+  width: 4px;
+  min-height: 1.5rem;
+  align-self: stretch;
+  background: var(--tgj-red);
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+.login-title {
+  margin: 0;
+  font-family:
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--tgj-gray);
+  letter-spacing: 0.02em;
+}
+
+.login-error {
+  margin: 0 0 1rem;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.9rem;
+  color: var(--tgj-red);
+  background: rgba(211, 18, 25, 0.08);
+  border-radius: 4px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 1fr) minmax(0, 2fr);
+  column-gap: 0.75rem;
+  row-gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1.1rem;
+}
+
+.form-label {
+  margin: 0;
+  text-align: right;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--tgj-gray-mid);
+  line-height: 1.2;
+  padding-top: 0.35rem;
+}
+
+.form-field {
+  min-width: 0;
+}
+
+.form-control,
+.form-select {
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--tgj-gray);
+  background: var(--tgj-input-bg);
+  border: none;
+  border-bottom: 1px solid var(--tgj-gray);
+  border-radius: 2px 2px 0 0;
+  padding: 0.55rem 0.4rem 0.5rem;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.form-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%232D3236' d='M0 0h10L5 6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.35rem center;
+  background-size: 10px 6px;
+  padding-right: 1.5rem;
+}
+
+.form-control::placeholder,
+.form-select::placeholder {
+  color: rgba(45, 50, 54, 0.45);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-bottom-color: var(--tgj-red);
+  background-color: #fff;
+  box-shadow: 0 1px 0 0 var(--tgj-red);
+}
+
+.login-submit {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.75rem 1rem;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--tgj-red);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition:
+    background 0.15s ease,
+    transform 0.05s ease;
+}
+
+.login-submit:hover {
+  background: var(--tgj-red-dark);
+}
+
+.login-submit:active {
+  transform: scale(0.99);
+}
+
+.login-footer-links {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+  padding-top: 0.25rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.login-footer-links a {
+  color: var(--tgj-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.login-footer-links a:hover {
+  color: var(--tgj-red-dark);
+}
+
+.link-like-btn {
+  border: none;
+  background: transparent;
+  color: var(--tgj-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+}
+
+.link-like-btn:hover {
+  color: var(--tgj-red-dark);
+}
+
+@media (max-width: 480px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-label {
+    text-align: left;
+    padding-top: 0;
+  }
+}

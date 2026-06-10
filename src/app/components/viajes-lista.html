@@ -1,0 +1,246 @@
+<div class="vg-grid">
+  <div class="vg-grid-head">
+    <div class="vg-grid-cell vg-cell-viaje">Servicio</div>
+    <div class="vg-grid-cell vg-cell-notas">Detalle</div>
+    <div class="vg-grid-cell vg-cell-estatus">Estatus</div>
+  </div>
+
+  <div class="vg-grid-body">
+    @for (viaje of serviciosGeneral; track viaje.id) {
+      <article class="vg-row">
+        <div class="vg-grid-cell vg-cell-viaje">
+          <span class="vg-row-index">{{ $index + 1 }}</span>
+          <a class="vg-row-link" href="#" (click)="$event.preventDefault(); abrirDetalle(viaje)">
+            {{ viaje.nombre }}
+          </a>
+          <span class="vg-row-sub">
+            Unidad: {{ viaje.unidad || '—' }} | Operador: {{ viaje.operador || '—' }} | Cliente:
+            {{ viaje.cliente || '—' }}
+          </span>
+        </div>
+
+        <div class="vg-grid-cell vg-cell-notas">
+          <p class="vg-notas-placeholder">
+            ETA carga: {{ primerSeguimiento(viaje)?.etaCarga || viaje.etaCarga || '—' }} | Llegada carga:
+            {{ primerSeguimiento(viaje)?.llegadaCarga || '—' }} | ETA descarga:
+            {{ primerSeguimiento(viaje)?.etaDescarga || '—' }} | Llegada descarga:
+            {{ primerSeguimiento(viaje)?.llegadaDescarga || '—' }}
+          </p>
+          <p class="vg-notas-placeholder">
+            Ref: {{ viaje.referencia || '—' }} | Obs: {{ viaje.observaciones || 'Sin observaciones' }}
+          </p>
+          <div class="vg-pod-row">
+            <span class="vg-chip" [class.vg-chip-ok]="viaje.archivosAdjuntos.length > 0">
+              {{ viaje.archivosAdjuntos.length > 0 ? viaje.archivosAdjuntos.length + ' archivo(s)' : 'Sin archivo' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="vg-grid-cell vg-cell-estatus">
+          <div class="vg-status-group" role="group" aria-label="Cambiar estatus">
+            @for (op of estatusOpciones; track op.id) {
+              <button
+                type="button"
+                class="vg-status-dot"
+                [class.is-active]="viaje.estatus === op.id"
+                [attr.data-tone]="op.id"
+                [attr.aria-label]="op.label"
+                [title]="op.label"
+                (click)="actualizarEstatus(viaje, op.id)">
+              </button>
+            }
+          </div>
+        </div>
+      </article>
+    }
+  </div>
+
+  @if (!serviciosGeneral.length) {
+    <div class="vg-empty">No hay servicios registrados.</div>
+  }
+</div>
+
+@if (viajeDetalle; as detalle) {
+  <section class="vg-detail-card">
+    <div class="vg-detail-head">
+      <h3>Detalle del servicio: {{ detalle.nombre }}</h3>
+      <button type="button" class="vg-action vg-action-ghost" (click)="cerrarDetalle()">Cerrar</button>
+    </div>
+    
+    <h4 class="vg-section-title">Datos del servicio</h4>
+    <div class="vg-detail-grid">
+      <label class="vg-field">
+        <span>Servicio</span>
+        <input class="vg-input" type="text" [value]="detalle.servicio || detalle.nombre" disabled />
+      </label>
+      <label class="vg-field">
+        <span>Unidad</span>
+        <input class="vg-input" type="text" [value]="detalle.unidad" disabled />
+      </label>
+      <label class="vg-field">
+        <span>Operador</span>
+        <input class="vg-input" type="text" [value]="detalle.operador" disabled />
+      </label>
+      <label class="vg-field">
+        <span>ETA</span>
+        <input class="vg-input" type="datetime-local" [value]="detalle.etaCarga" disabled />
+      </label>
+      <label class="vg-field">
+        <span>Cliente</span>
+        <input class="vg-input" type="text" [value]="detalle.cliente" disabled />
+      </label>
+      <label class="vg-field">
+        <span>Referencia</span>
+        <input class="vg-input" type="text" [value]="detalle.referencia" disabled />
+      </label>
+    </div>
+
+    @for (seg of detalle.seguimientos; track $index) {
+      <h4 class="vg-section-title">Recoleccion {{ obtenerIndiceRecoleccion(detalle, seg) }}: {{ seg.origen || 'Origen' }} -> {{ seg.destino || 'Destino' }}</h4>
+      <h4 class="vg-section-title">Seguimiento de carga</h4>
+      <div class="vg-detail-grid">
+        <label class="vg-field">
+          <span>Hora de llegada</span>
+          <input class="vg-input" type="datetime-local" [(ngModel)]="seg.llegadaCarga" />
+        </label>
+        <label class="vg-field">
+          <span>Diferencia (ETA-Llegada)</span>
+          <input
+            class="vg-input"
+            [class.vg-input-negative]="esDiferenciaNegativa(diferenciaEtaLlegadaCarga(seg))"
+            type="text"
+            [value]="diferenciaEtaLlegadaCarga(seg)"
+            disabled />
+        </label>
+        <label class="vg-field">
+          <span>Fecha y hora de ingreso</span>
+          <input class="vg-input" type="datetime-local" [(ngModel)]="seg.ingresoCarga" />
+        </label>
+        <label class="vg-field">
+          <span>Fecha y hora de carga</span>
+          <input class="vg-input" type="datetime-local" [(ngModel)]="seg.horaCarga" />
+        </label>
+        <label class="vg-field">
+          <span>Fecha y hora de salida</span>
+          <input class="vg-input" type="datetime-local" [(ngModel)]="seg.salidaCarga" />
+        </label>
+      </div>
+
+      <h4 class="vg-section-title">Seguimiento de descarga</h4>
+      <div class="vg-detail-grid">
+        <label class="vg-field">
+          <span>ETA llegada a descarga</span>
+          <input class="vg-input" type="datetime-local" [(ngModel)]="seg.etaDescarga" />
+        </label>
+        <label class="vg-field">
+          <span>Hora de llegada</span>
+          <input class="vg-input" type="datetime-local" [(ngModel)]="seg.llegadaDescarga" />
+        </label>
+        <label class="vg-field">
+          <span>Diferencia (ETA-Llegada)</span>
+          <input
+            class="vg-input"
+            [class.vg-input-negative]="esDiferenciaNegativa(diferenciaEtaLlegadaDescarga(seg))"
+            type="text"
+            [value]="diferenciaEtaLlegadaDescarga(seg)"
+            disabled />
+        </label>
+        <label class="vg-field">
+          <span>Hora de ingreso</span>
+          <input class="vg-input" type="datetime-local" [(ngModel)]="seg.ingresoDescarga" />
+        </label>
+        <label class="vg-field">
+          <span>Hora de descarga</span>
+          <input class="vg-input" type="datetime-local" [(ngModel)]="seg.horaDescarga" />
+        </label>
+        <label class="vg-field">
+          <span>Hora de salida</span>
+          <input class="vg-input" type="datetime-local" [(ngModel)]="seg.salidaDescarga" />
+        </label>
+      </div>
+    }
+
+    <div class="vg-detail-grid">
+      <label class="vg-field vg-field-full">
+        <span>Incidentes / Observaciones (historial)</span>
+        <div class="vg-pod-row">
+          <input
+            class="vg-input"
+            type="text"
+            placeholder="Escribe un comentario para este viaje"
+            [(ngModel)]="comentarioDetalleInput"
+            (keydown.enter)="agregarComentarioDetalle()" />
+          <button type="button" class="vg-action vg-action-primary vg-btn-inline" (click)="agregarComentarioDetalle()">
+            Enviar
+          </button>
+        </div>
+        @if (detalle.comentarios.length) {
+          <div class="vg-pod-row">
+            @for (cmt of detalle.comentarios; track cmt.id) {
+              <span class="vg-chip vg-chip-ok">{{ cmt.autorNombre }} ({{ cmt.autorPuesto }})</span>
+              <small class="vg-muted">{{ formatoFechaComentario(cmt.fechaIso) }}</small>
+              <span>{{ cmt.mensaje }}</span>
+            }
+          </div>
+        } @else {
+          <small class="vg-muted">Sin comentarios todavía.</small>
+        }
+      </label>
+      
+      <label class="vg-field vg-field-full">
+        <span>POD (PDF o imagen, max 3)</span>
+        <input
+          class="vg-input"
+          type="file"
+          multiple
+          accept="application/pdf,image/*"
+          [disabled]="archivosDisponiblesRestantes(detalle) === 0"
+          (change)="onArchivosSeleccionadosDetalle($event)" />
+        <small class="vg-muted">Disponibles: {{ archivosDisponiblesRestantes(detalle) }}</small>
+        @if (detalle.archivosAdjuntos.length) {
+          <div class="vg-pod-row">
+            @for (adj of detalle.archivosAdjuntos; track adj.nombre + '-' + $index) {
+              <span class="vg-chip vg-chip-ok">{{ adj.nombre }}</span>
+              <button type="button" class="vg-action vg-action-ghost vg-btn-inline" (click)="verArchivo(adj)">Ver</button>
+              <button type="button" class="vg-action vg-action-ghost vg-btn-inline" (click)="quitarArchivoDetalle($index)">Quitar</button>
+            }
+          </div>
+        } @else {
+          <small class="vg-muted">Sin archivos cargados.</small>
+        }
+      </label>
+      
+      <label class="vg-field vg-field-full">
+        <span>Carta porte (PDF o imagen, max 3)</span>
+        <input
+          class="vg-input"
+          type="file"
+          multiple
+          accept="application/pdf,image/*"
+          [disabled]="archivosDisponiblesCartaPorte(detalle) === 0"
+          (change)="onArchivosSeleccionadosDetalle($event, 'cartaPorte')" />
+        <small class="vg-muted">Disponibles: {{ archivosDisponiblesCartaPorte(detalle) }}</small>
+        @if (detalle.archivosCartaPorte.length) {
+          <div class="vg-pod-row">
+            @for (adj of detalle.archivosCartaPorte; track adj.nombre + '-' + $index) {
+              <span class="vg-chip vg-chip-ok">{{ adj.nombre }}</span>
+              <button type="button" class="vg-action vg-action-ghost vg-btn-inline" (click)="verArchivo(adj)">Ver</button>
+              <button
+                type="button"
+                class="vg-action vg-action-ghost vg-btn-inline"
+                (click)="quitarArchivoDetalle($index, 'cartaPorte')">
+                Quitar
+              </button>
+            }
+          </div>
+        } @else {
+          <small class="vg-muted">Sin archivos de carta porte cargados.</small>
+        }
+      </label>
+    </div>
+    
+    <div class="vg-detail-actions">
+      <button type="button" class="vg-action vg-action-primary" (click)="guardarDetalle()">Guardar</button>
+    </div>
+  </section>
+}

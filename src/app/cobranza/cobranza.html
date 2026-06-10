@@ -1,0 +1,78 @@
+<section class="cb-shell" aria-label="Cobranza">
+  <header class="cb-head">
+    <div>
+      <span class="cb-eyebrow">Tesorería</span>
+      <h2>Cobranza</h2>
+      <p class="cb-help">
+        Viajes con factura PDF cargada en Facturación. Aquí subes el reporte de pago (RP) en PDF y marcas el viaje como terminado.
+      </p>
+    </div>
+  </header>
+
+  @if (errorMsg) {
+    <div class="cb-alert" role="alert">{{ errorMsg }}</div>
+  }
+
+  @if (!viajes.length) {
+    <div class="cb-empty">No hay viajes en cobranza. Primero sube la factura en Facturación.</div>
+  } @else {
+    <div class="cb-list">
+      @for (v of viajes; track trackById($index, v)) {
+        <article class="cb-card" [class.cb-card-done]="v.cobranzaTerminada">
+          <div class="cb-card-head">
+            <h3>{{ v.nombre }}</h3>
+            @if (v.cobranzaTerminada) {
+              <span class="cb-badge">Terminado</span>
+            }
+          </div>
+          <p class="cb-meta">{{ v.cliente }} · Ref. {{ v.referencia || '—' }}</p>
+
+          <dl class="cb-dl">
+            <div><dt>Unidad</dt><dd>{{ v.unidad || '—' }}</dd></div>
+            <div><dt>Operador</dt><dd>{{ v.operador || '—' }}</dd></div>
+            <div><dt>Ruta</dt><dd>{{ v.ruta || '—' }}</dd></div>
+            <div><dt>ETA carga</dt><dd>{{ v.seguimientos[0]?.etaCarga || v.etaCarga || '—' }}</dd></div>
+            <div><dt>ETA descarga</dt><dd>{{ v.seguimientos[0]?.etaDescarga || '—' }}</dd></div>
+          </dl>
+
+          <div class="cb-block">
+            <h4 class="cb-sub">Factura (PDF)</h4>
+            @if (v.facturaPdf; as fac) {
+              <div class="cb-row">
+                <span class="cb-pill">{{ fac.nombre }}</span>
+                <button type="button" class="cb-btn cb-btn-ghost" (click)="verArchivo(fac)">Ver factura</button>
+              </div>
+            }
+          </div>
+
+          <div class="cb-block">
+            <h4 class="cb-sub">Reporte de pago (RP, PDF)</h4>
+            @if (v.reportePagoPdf; as rp) {
+              <div class="cb-row">
+                <span class="cb-pill cb-pill-ok">{{ rp.nombre }}</span>
+                <button type="button" class="cb-btn cb-btn-ghost" (click)="verArchivo(rp)">Ver RP</button>
+                <button type="button" class="cb-btn cb-btn-ghost" (click)="quitarRp(v.id)">Quitar</button>
+              </div>
+            }
+            <label class="cb-upload">
+              <span class="cb-upload-label">{{ v.reportePagoPdf ? 'Reemplazar RP' : 'Subir RP (PDF)' }}</span>
+              <input class="cb-input" type="file" accept="application/pdf" (change)="onRpPdfSeleccionado($event, v.id)" />
+            </label>
+          </div>
+
+          <div class="cb-actions">
+            @if (!v.cobranzaTerminada) {
+              <button type="button" class="cb-btn cb-btn-primary" (click)="marcarViajeTerminado(v.id)">
+                Marcar viaje como terminado
+              </button>
+            } @else {
+              <button type="button" class="cb-btn cb-btn-outline" (click)="desmarcarTerminado(v.id)">
+                Desmarcar terminado
+              </button>
+            }
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>
