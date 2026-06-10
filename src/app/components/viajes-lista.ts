@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import type { ArchivoAdjunto, ComentarioViaje, Estatus, RecoleccionSeguimiento, ViajeRow } from '../viaje.model';
+import type { ArchivoAdjunto, Estatus, RecoleccionSeguimiento, ViajeRow } from '../viaje.model';
 
 export interface EstatusOpcion {
   id: Estatus;

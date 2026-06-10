@@ -1,7 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FlotaService, OperadorLocal, TipoCaja, VehiculoLocal, VehiculoTipo } from '../flota-service';
+import {
+  FlotaService,
+  OperadorLocal,
+  TipoCaja,
+  VehiculoLocal,
+  VehiculoTipo,
+} from '../flota-service';
 
 @Component({
   selector: 'app-gestion-flota',
@@ -113,7 +119,7 @@ export class GestionFlota {
 
   get notificacionesActivas(): { clave: string; mensaje: string }[] {
     return [...this.alertasLicencias, ...this.alertasAptosMedicos, ...this.alertasSeguros].filter(
-      (alerta) => !this.notificacionesCerradas.has(alerta.clave)
+      (alerta) => !this.notificacionesCerradas.has(alerta.clave),
     );
   }
 
@@ -131,7 +137,10 @@ export class GestionFlota {
     { id: 'seca', label: 'Seca' },
   ];
 
-  constructor(private readonly flotaService: FlotaService, private readonly cdr: ChangeDetectorRef) {
+  private readonly flotaService = inject(FlotaService);
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  constructor() {
     this.refrescar();
   }
 
@@ -171,7 +180,9 @@ export class GestionFlota {
       ...(this.aseguradora ? { aseguradora: this.aseguradora } : {}),
       ...(this.polizaSeguro ? { polizaSeguro: this.polizaSeguro } : {}),
       ...(this.folioVerificacion ? { folioVerificacion: this.folioVerificacion } : {}),
-      ...(this.vencimientoVerificacion ? { vencimientoVerificacion: this.vencimientoVerificacion } : {}),
+      ...(this.vencimientoVerificacion
+        ? { vencimientoVerificacion: this.vencimientoVerificacion }
+        : {}),
     });
 
     if (!res.success) {
@@ -263,7 +274,7 @@ export class GestionFlota {
 
   guardarEdicionVehiculo(): void {
     if (!this.vehiculoEnEdicion) return;
-    
+
     this.errorMsg = '';
     this.exitoMsg = '';
 

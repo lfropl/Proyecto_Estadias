@@ -1,8 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
-import { abrirAdjuntoEnNuevaPestana, leerArchivoBase64, MAX_ADJUNTO_BYTES } from '../archivo-adjunto.util';
+import {
+  abrirAdjuntoEnNuevaPestana,
+  leerArchivoBase64,
+  MAX_ADJUNTO_BYTES,
+} from '../archivo-adjunto.util';
 import { ServiciosViajeService } from '../servicios-viaje.service';
 import type { ArchivoAdjunto, ViajeRow } from '../viaje.model';
 import { esViajeListoFacturacionCobranza } from '../viaje-operativo.util';
@@ -15,11 +19,12 @@ import { esViajeListoFacturacionCobranza } from '../viaje-operativo.util';
   styleUrl: './cobranza.scss',
 })
 export class Cobranza implements OnDestroy {
+  private readonly serviciosViaje = inject(ServiciosViajeService);
   viajes: ViajeRow[] = [];
   errorMsg = '';
   private sub = Subscription.EMPTY;
 
-  constructor(private readonly serviciosViaje: ServiciosViajeService) {
+  constructor() {
     this.sub = this.serviciosViaje.obtenerViajes$().subscribe((lista) => {
       this.viajes = lista.filter((v) => esViajeListoFacturacionCobranza(v) && !!v.facturaPdf);
     });

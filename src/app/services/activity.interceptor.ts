@@ -11,7 +11,7 @@ export class ActivityInterceptor implements HttpInterceptor {
   private readonly sessionService = inject(SessionService);
   private readonly platformId = inject(PLATFORM_ID);
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  intercept(req: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     if (isPlatformBrowser(this.platformId)) {
       this.inactivityService.resetInactivityTimer();
       this.sessionService.refreshSession();

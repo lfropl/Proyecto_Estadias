@@ -63,7 +63,14 @@
 
   <!-- Modal de edición de operadores -->
   @if (modoEdicion && operadorEnEdicion) {
-    <div class="modal-backdrop" (click)="cancelarEdicion()"></div>
+    <div
+      class="modal-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Cerrar"
+      (click)="cancelarEdicion()"
+      (keydown.enter)="cancelarEdicion()"
+      (keydown.escape)="cancelarEdicion()"></div>
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">

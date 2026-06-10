@@ -1,21 +1,69 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './login/login';
-import { VistaGeneral } from './vista-general/vista-general';
-import { Registro } from './registro/registro';
 import { authGuard, guestGuard } from './auth.guard';
 
+/**
+ * Application routes.
+ *
+ * Feature components are lazy-loaded with `loadComponent` so each view ships in
+ * its own chunk. This keeps the initial bundle small and makes the app easier
+ * to scale as new sections are added.
+ */
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
-  { path: 'vista-general', component: VistaGeneral, canActivate: [authGuard] },
-  { path: 'registro-servicios', component: VistaGeneral, canActivate: [authGuard] },
-  { path: 'gestion-flota', component: VistaGeneral, canActivate: [authGuard] },
-  { path: 'recursos-humanos', component: VistaGeneral, canActivate: [authGuard] },
-  { path: 'facturacion', component: VistaGeneral, canActivate: [authGuard] },
-  { path: 'nominas', component: VistaGeneral, canActivate: [authGuard] },
-  { path: 'cuentas', component: VistaGeneral, canActivate: [authGuard] },
-  { path: 'cobranza', component: VistaGeneral, canActivate: [authGuard] },
-  { path: 'mantenimiento', component: VistaGeneral, canActivate: [authGuard] },
-  { path: 'registro', component: Registro, canActivate: [guestGuard] },
-  { path: '**', redirectTo: 'login' }
+  {
+    path: 'login',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./login/login').then((m) => m.LoginComponent),
+  },
+  {
+    path: 'registro',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./registro/registro').then((m) => m.Registro),
+  },
+  {
+    path: 'vista-general',
+    canActivate: [authGuard],
+    loadComponent: () => import('./vista-general/vista-general').then((m) => m.VistaGeneral),
+  },
+  {
+    path: 'registro-servicios',
+    canActivate: [authGuard],
+    loadComponent: () => import('./vista-general/vista-general').then((m) => m.VistaGeneral),
+  },
+  {
+    path: 'gestion-flota',
+    canActivate: [authGuard],
+    loadComponent: () => import('./vista-general/vista-general').then((m) => m.VistaGeneral),
+  },
+  {
+    path: 'recursos-humanos',
+    canActivate: [authGuard],
+    loadComponent: () => import('./vista-general/vista-general').then((m) => m.VistaGeneral),
+  },
+  {
+    path: 'facturacion',
+    canActivate: [authGuard],
+    loadComponent: () => import('./vista-general/vista-general').then((m) => m.VistaGeneral),
+  },
+  {
+    path: 'nominas',
+    canActivate: [authGuard],
+    loadComponent: () => import('./vista-general/vista-general').then((m) => m.VistaGeneral),
+  },
+  {
+    path: 'cuentas',
+    canActivate: [authGuard],
+    loadComponent: () => import('./vista-general/vista-general').then((m) => m.VistaGeneral),
+  },
+  {
+    path: 'cobranza',
+    canActivate: [authGuard],
+    loadComponent: () => import('./vista-general/vista-general').then((m) => m.VistaGeneral),
+  },
+  {
+    path: 'mantenimiento',
+    canActivate: [authGuard],
+    loadComponent: () => import('./vista-general/vista-general').then((m) => m.VistaGeneral),
+  },
+  { path: '**', redirectTo: 'login' },
 ];

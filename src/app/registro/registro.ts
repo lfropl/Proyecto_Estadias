@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonContent } from '@ionic/angular/standalone';
@@ -22,11 +22,9 @@ export class Registro implements OnInit {
   exitoMsg = '';
   registrosGuardados: UsuarioLocal[] = [];
 
-  constructor(
-    private readonly loginService: LoginService,
-    private readonly router: Router,
-    private readonly cdr: ChangeDetectorRef
-  ) {}
+  private readonly loginService = inject(LoginService);
+  private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
     this.refrescarPanel();
@@ -39,7 +37,13 @@ export class Registro implements OnInit {
   guardarRegistro(): void {
     this.errorMsg = '';
     this.exitoMsg = '';
-    if (!this.nombre.trim() || !this.apellido.trim() || !this.correo.trim() || !this.puesto.trim() || !this.password) {
+    if (
+      !this.nombre.trim() ||
+      !this.apellido.trim() ||
+      !this.correo.trim() ||
+      !this.puesto.trim() ||
+      !this.password
+    ) {
       this.errorMsg = 'Completa todos los campos.';
       this.cdr.markForCheck();
       return;
