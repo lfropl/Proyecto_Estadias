@@ -6,28 +6,33 @@
     </div>
   </header>
 
+  <!-- FORMULARIO DE ALTA -->
   <div class="gf-card">
     <div class="gf-form">
       <label class="gf-field">
         <span class="gf-label">Número económico</span>
         <input class="gf-input" type="text" placeholder="Ej. 01 / TH101" [(ngModel)]="numeroEconomico" />
       </label>
-
       <label class="gf-field">
         <span class="gf-label">Placas</span>
         <input class="gf-input" type="text" placeholder="ABC-123" [(ngModel)]="placas" />
       </label>
-
+      <label class="gf-field">
+        <span class="gf-label">Número de serie (VIN)</span>
+        <input class="gf-input" type="text" placeholder="17 caracteres del chasis" [(ngModel)]="numeroVin" />
+      </label>
       <label class="gf-field">
         <span class="gf-label">Tipo</span>
         <select class="gf-input" [(ngModel)]="tipo" (ngModelChange)="onTipoChange()">
           <option value="">Selecciona</option>
-          @for (t of tipos; track t.id) {
-            <option [value]="t.id">{{ t.label }}</option>
-          }
+          <option value="tracto">Tracto</option>
+          <option value="caja">Caja (53 pies)</option>
+          <option value="camioneta">Camioneta 3.5T</option>
+          <option value="van">Van</option>
+          <option value="rabon">Rabón</option>
+          <option value="torton">Torton</option>
         </select>
       </label>
-
       @if (tipo === 'caja') {
         <label class="gf-field">
           <span class="gf-label">Tipo de caja</span>
@@ -38,366 +43,183 @@
             }
           </select>
         </label>
-
         <label class="gf-field gf-checkline">
           <input type="checkbox" [(ngModel)]="cajaConSeguro" />
           <span>Caja con seguro</span>
         </label>
-
         @if (cajaConSeguro) {
           <label class="gf-field">
             <span class="gf-label">Vencimiento de seguro (caja)</span>
             <input class="gf-input" type="date" [(ngModel)]="vencimientoSeguro" />
           </label>
-
           <label class="gf-field">
             <span class="gf-label">Aseguradora</span>
             <input class="gf-input" type="text" placeholder="Nombre de la aseguradora" [(ngModel)]="aseguradora" />
           </label>
-
           <label class="gf-field">
             <span class="gf-label">Póliza de seguro</span>
             <input class="gf-input" type="text" placeholder="Folio de póliza" [(ngModel)]="polizaSeguro" />
           </label>
-
-          <label class="gf-field">
-            <span class="gf-label"></span>
-            <input class="gf-input" type="text" placeholder="Folio de póliza" [(ngModel)]="polizaSeguro" />
-          </label>
         }
       }
-
-      @if (tipo !== 'caja') {
+      @if (tipo && tipo !== 'caja') {
         <label class="gf-field">
           <span class="gf-label">Vencimiento de seguro</span>
           <input class="gf-input" type="date" [(ngModel)]="vencimientoSeguro" />
         </label>
-
         <label class="gf-field">
           <span class="gf-label">Aseguradora</span>
           <input class="gf-input" type="text" placeholder="Nombre de la aseguradora" [(ngModel)]="aseguradora" />
         </label>
-
         <label class="gf-field">
           <span class="gf-label">Póliza de seguro</span>
           <input class="gf-input" type="text" placeholder="Folio de póliza" [(ngModel)]="polizaSeguro" />
         </label>
-
         <label class="gf-field">
           <span class="gf-label">Folio de verificación</span>
           <input class="gf-input" type="text" placeholder="Folio de verificación" [(ngModel)]="folioVerificacion" />
         </label>
-
         <label class="gf-field">
           <span class="gf-label">Fecha de vencimiento de verificación</span>
           <input class="gf-input" type="date" [(ngModel)]="vencimientoVerificacion" />
         </label>
       }
-
       <div class="gf-actions">
-        <button type="button" class="gf-btn gf-btn-primary" (click)="guardar()">Guardar</button>
-        @if (errorMsg) {
-          <div class="gf-msg gf-msg-error">{{ errorMsg }}</div>
-        }
-        @if (exitoMsg) {
-          <div class="gf-msg gf-msg-ok">{{ exitoMsg }}</div>
-        }
+        <button type="button" class="gf-btn gf-btn-primary" (click)="guardar()" [disabled]="guardando">
+          {{ guardando ? 'Guardando...' : 'Guardar' }}
+        </button>
       </div>
+      <app-toast [mensaje]="toastMsg" [tipo]="toastTipo" [mostrar]="toastMostrar"></app-toast>
     </div>
   </div>
 
-  <!-- Modal de edición de vehículos -->
-  @if (modoEdicion && vehiculoEnEdicion) {
-    <div class="modal-backdrop" (click)="cancelarEdicion()"></div>
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Editar Vehículo</h3>
-          <button type="button" class="modal-close" (click)="cancelarEdicion()">×</button>
-        </div>
-        <div class="modal-body">
-          <form class="gf-form">
-            <label class="gf-field">
-              <span class="gf-label">Número económico</span>
-              <input class="gf-input" type="text" [(ngModel)]="numeroEconomico" name="numeroEconomico" />
-            </label>
-            <label class="gf-field">
-              <span class="gf-label">Placas</span>
-              <input class="gf-input" type="text" [(ngModel)]="placas" name="placas" />
-            </label>
-            <label class="gf-field">
-              <span class="gf-label">Tipo</span>
-              <select class="gf-input" [(ngModel)]="tipo" name="tipo" (ngModelChange)="onTipoChange()">
-                <option value="">Selecciona</option>
-                @for (t of tipos; track t.id) {
-                  <option [value]="t.id">{{ t.label }}</option>
-                }
-              </select>
-            </label>
-            @if (tipo === 'caja') {
-              <label class="gf-field">
-                <span class="gf-label">Tipo de caja</span>
-                <select class="gf-input" [(ngModel)]="tipoCaja" name="tipoCaja">
-                  <option value="">Selecciona</option>
-                  @for (tc of tiposCaja; track tc.id) {
-                    <option [value]="tc.id">{{ tc.label }}</option>
-                  }
-                </select>
-              </label>
-              <label class="gf-field">
-                <span class="gf-label">Vencimiento de seguro (caja)</span>
-                <input class="gf-input" type="date" [(ngModel)]="vencimientoSeguro" name="vencimientoSeguro" />
-              </label>
-              <label class="gf-field">
-                <span class="gf-label">Aseguradora</span>
-                <input class="gf-input" type="text" [(ngModel)]="aseguradora" name="aseguradora" />
-              </label>
-              <label class="gf-field">
-                <span class="gf-label">Póliza de seguro</span>
-                <input class="gf-input" type="text" [(ngModel)]="polizaSeguro" name="polizaSeguro" />
-              </label>
-            }
-            @if (tipo !== 'caja') {
-              <label class="gf-field">
-                <span class="gf-label">Vencimiento de seguro</span>
-                <input class="gf-input" type="date" [(ngModel)]="vencimientoSeguro" name="vencimientoSeguro" />
-              </label>
-              <label class="gf-field">
-                <span class="gf-label">Aseguradora</span>
-                <input class="gf-input" type="text" [(ngModel)]="aseguradora" name="aseguradora" />
-              </label>
-              <label class="gf-field">
-                <span class="gf-label">Póliza de seguro</span>
-                <input class="gf-input" type="text" [(ngModel)]="polizaSeguro" name="polizaSeguro" />
-              </label>
-              <label class="gf-field">
-                <span class="gf-label">Folio de verificación</span>
-                <input class="gf-input" type="text" [(ngModel)]="folioVerificacion" name="folioVerificacion" />
-              </label>
-              <label class="gf-field">
-                <span class="gf-label">Fecha de vencimiento de verificación</span>
-                <input class="gf-input" type="date" [(ngModel)]="vencimientoVerificacion" name="vencimientoVerificacion" />
-              </label>
-            }
-            @if (errorMsg) {
-              <div class="gf-msg gf-msg-error">{{ errorMsg }}</div>
-            }
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="gf-btn gf-btn-ghost" (click)="cancelarEdicion()">Cancelar</button>
-          <button type="button" class="gf-btn gf-btn-primary" (click)="guardarEdicionVehiculo()">Guardar cambios</button>
-        </div>
-      </div>
-    </div>
-  }
-
-  <!-- Modal de edición de operadores -->
-  @if (modoEdicion && operadorEnEdicion) {
-    <div class="modal-backdrop" (click)="cancelarEdicion()"></div>
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Editar Operador</h3>
-          <button type="button" class="modal-close" (click)="cancelarEdicion()">×</button>
-        </div>
-        <div class="modal-body">
-          <form class="gf-form">
-            <label class="gf-field">
-              <span class="gf-label">Nombre</span>
-              <input class="gf-input" type="text" [(ngModel)]="nombre" name="nombre" />
-            </label>
-            <label class="gf-field">
-              <span class="gf-label">Apellido Paterno</span>
-              <input class="gf-input" type="text" [(ngModel)]="apellidoPaterno" name="apellidoPaterno" />
-            </label>
-            <label class="gf-field">
-              <span class="gf-label">Apellido Materno</span>
-              <input class="gf-input" type="text" [(ngModel)]="apellidoMaterno" name="apellidoMaterno" />
-            </label>
-            <label class="gf-field">
-              <span class="gf-label">Folio Apto Médico</span>
-              <input class="gf-input" type="text" [(ngModel)]="folioAptoMedico" name="folioAptoMedico" />
-            </label>
-            <label class="gf-field">
-              <span class="gf-label">Vencimiento Apto Médico</span>
-              <input class="gf-input" type="date" [(ngModel)]="vencimientoAptoMedico" name="vencimientoAptoMedico" />
-            </label>
-            <label class="gf-field">
-              <span class="gf-label">RFC</span>
-              <input class="gf-input" type="text" [(ngModel)]="rfc" name="rfc" />
-            </label>
-            <label class="gf-field">
-              <span class="gf-label">Folio Licencia</span>
-              <input class="gf-input" type="text" [(ngModel)]="folioLicencia" name="folioLicencia" />
-            </label>
-            <label class="gf-field">
-              <span class="gf-label">Vencimiento Licencia</span>
-              <input class="gf-input" type="date" [(ngModel)]="vencimientoLicencia" name="vencimientoLicencia" />
-            </label>
-            @if (errorMsg) {
-              <div class="gf-msg gf-msg-error">{{ errorMsg }}</div>
-            }
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="gf-btn gf-btn-ghost" (click)="cancelarEdicion()">Cancelar</button>
-          <button type="button" class="gf-btn gf-btn-primary" (click)="guardarEdicionOperador()">Guardar cambios</button>
-        </div>
-      </div>
-    </div>
-  }
-
+  <!-- TABLA: LISTA DE UNIDADES -->
   <div class="gf-card">
     <h3 class="gf-subtitle">Lista de unidades</h3>
     <div class="gf-table-wrap">
       <table class="gf-table" aria-label="Unidades registradas">
         <thead>
           <tr>
-            <th># Económico</th>
-            <th>Placas</th>
-            <th>Tipo</th>
-            <th>Vence seguro</th>
-            <th>Aseguradora</th>
-            <th>Póliza</th>
-            <th>Folio verificación</th>
-            <th>Vence verificación</th>
-            <th>Estado</th>
-            <th></th>
+            <th># Económico</th><th>Placas</th><th>Tipo</th>
+            <th>Vence seguro</th><th>Aseguradora</th><th>Póliza</th>
+            <th>Folio verificación</th><th>Vence verificación</th><th>Estado</th><th></th>
           </tr>
         </thead>
         <tbody>
           @for (v of unidades; track v.id) {
             <tr>
-              <td class="gf-strong">{{ v.numeroEconomico }}</td>
-              <td>{{ v.placas }}</td>
-              <td class="gf-cap">{{ v.tipo }}</td>
-              <td>{{ v.vencimientoSeguro || '—' }}</td>
-              <td>{{ v.aseguradora || '—' }}</td>
-              <td>{{ v.polizaSeguro || '—' }}</td>
-              <td>{{ v.folioVerificacion || '—' }}</td>
-              <td>{{ v.vencimientoVerificacion || '—' }}</td>
-              <td [class.gf-text-danger]="esAlertaVencimiento(v.vencimientoSeguro)">
-                {{ estadoVencimiento(v.vencimientoSeguro) }}
-              </td>
+              <td class="gf-strong">{{ v.numeroEconomico }}</td><td>{{ v.placas }}</td><td class="gf-cap">{{ v.tipo }}</td>
+              <td>{{ v.vencimientoSeguro || '—' }}</td><td>{{ v.aseguradora || '—' }}</td><td>{{ v.polizaSeguro || '—' }}</td>
+              <td>{{ v.folioVerificacion || '—' }}</td><td>{{ v.vencimientoVerificacion || '—' }}</td><td>{{ estadoVencimiento(v.vencimientoSeguro) }}</td>
               <td class="gf-right">
-                <button type="button" class="gf-btn gf-btn-ghost" (click)="eliminar(v.id)">Eliminar</button>
+                <button type="button" class="gf-btn gf-btn-ghost" (click)="confirmarEliminarVehiculo(v)">Eliminar</button>
               </td>
             </tr>
           }
-          @if (!unidades.length) {
-            <tr>
-              <td colspan="8" class="gf-empty">Todavía no hay unidades dadas de alta.</td>
-            </tr>
-          }
+          @if (!unidades.length) { <tr><td colspan="10" class="gf-empty">Todavía no hay unidades dadas de alta.</td></tr> }
         </tbody>
       </table>
     </div>
   </div>
 
+  <!-- TABLA: LISTA DE CAJAS -->
   <div class="gf-card">
     <h3 class="gf-subtitle">Lista de cajas</h3>
     <div class="gf-table-wrap">
       <table class="gf-table" aria-label="Cajas registradas">
         <thead>
           <tr>
-            <th># Económico</th>
-            <th>Placas</th>
-            <th>Tipo de caja</th>
-            <th>Seguro</th>
-            <th>Aseguradora</th>
-            <th>Póliza</th>
-            <th>Estado</th>
-            <th></th>
+            <th># Económico</th><th>Placas</th><th>Tipo de caja</th>
+            <th>Seguro</th><th>Aseguradora</th><th>Póliza</th><th>Estado</th><th></th>
           </tr>
         </thead>
         <tbody>
-          @for (v of cajas; track v.id) {
+          @for (c of cajas; track c.id) {
             <tr>
-              <td class="gf-strong">{{ v.numeroEconomico }}</td>
-              <td>{{ v.placas }}</td>
-              <td>
-                <span class="gf-pill">{{ v.tipoCaja }}</span>
-              </td>
-              <td>{{ v.vencimientoSeguro ? 'Asegurada' : 'Sin seguro' }}</td>
-              <td>{{ v.aseguradora || '—' }}</td>
-              <td>{{ v.polizaSeguro || '—' }}</td>
-              <td [class.gf-text-danger]="esAlertaVencimiento(v.vencimientoSeguro)">
-                {{ estadoVencimiento(v.vencimientoSeguro) }}
-              </td>
+              <td class="gf-strong">{{ c.numeroEconomico }}</td><td>{{ c.placas }}</td><td>{{ c.tipoCaja }}</td>
+              <td>{{ c.vencimientoSeguro ? 'Asegurada' : 'Sin seguro' }}</td><td>{{ c.aseguradora || '—' }}</td><td>{{ c.polizaSeguro || '—' }}</td>
+              <td>{{ estadoVencimiento(c.vencimientoSeguro) }}</td>
               <td class="gf-right">
-                <button type="button" class="gf-btn gf-btn-ghost" (click)="abrirEdicionVehiculo(v)">Editar</button>
-                 <button type="button" class="gf-btn gf-btn-ghost" (click)="eliminar(v.id)">Eliminar</button>
+                <button type="button" class="gf-btn gf-btn-ghost" (click)="confirmarEliminarVehiculo(c)">Eliminar</button>
               </td>
             </tr>
           }
-          @if (!cajas.length) {
-            <tr>
-              <td colspan="8" class="gf-empty">Todavía no hay cajas dadas de alta.</td>
-            </tr>
-          }
+          @if (!cajas.length) { <tr><td colspan="8" class="gf-empty">Todavía no hay cajas dadas de alta.</td></tr> }
         </tbody>
       </table>
     </div>
   </div>
 
+  <!-- TABLA: OPERADORES REGISTRADOS -->
   <div class="gf-card">
     <h3 class="gf-subtitle">Operadores registrados</h3>
     <div class="gf-table-wrap">
       <table class="gf-table" aria-label="Operadores registrados">
         <thead>
           <tr>
-            <th>Nombre completo</th>
-            <th>Folio apto médico</th>
-            <th>Vencimiento apto médico</th>
-            <th>RFC</th>
-            <th>Folio licencia</th>
-            <th>Vencimiento licencia</th>
-            <th>Estado licencia</th>
-            <th></th>
+            <th>Nombre completo</th><th>Folio apto médico</th><th>Vencimiento apto médico</th>
+            <th>RFC</th><th>Folio licencia</th><th>Vencimiento licencia</th><th>Estado licencia</th><th></th>
           </tr>
         </thead>
         <tbody>
           @for (op of operadores; track op.id) {
             <tr>
               <td class="gf-strong">{{ op.nombre }} {{ op.apellidoPaterno }} {{ op.apellidoMaterno }}</td>
-              <td>{{ op.folioAptoMedico }}</td>
-              <td [class.gf-text-danger]="esAlertaVencimiento(op.vencimientoAptoMedico)">
-                {{ op.vencimientoAptoMedico || '—' }}
-              </td>
-              <td>{{ op.rfc }}</td>
-              <td>{{ op.folioLicencia }}</td>
-              <td>{{ op.vencimientoLicencia }}</td>
-              <td [class.gf-text-danger]="esAlertaVencimiento(op.vencimientoLicencia)">
-                {{ estadoVencimiento(op.vencimientoLicencia) }}
-              </td>
+              <td>{{ op.folioAptoMedico }}</td><td>{{ op.vencimientoAptoMedico || '—' }}</td>
+              <td>{{ op.rfc }}</td><td>{{ op.folioLicencia }}</td><td>{{ op.vencimientoLicencia }}</td>
+              <td>{{ estadoVencimiento(op.vencimientoLicencia) }}</td>
               <td class="gf-right">
-                <button type="button" class="gf-btn gf-btn-ghost" (click)="eliminarOperador(op.id)">Eliminar</button>
+                <button type="button" class="gf-btn gf-btn-ghost" (click)="confirmarEliminarOperador(op)">Eliminar</button>
               </td>
             </tr>
           }
-          @if (!operadores.length) {
-            <tr>
-              <td colspan="8" class="gf-empty">Aún no hay operadores dados de alta.</td>
-            </tr>
-          }
+          @if (!operadores.length) { <tr><td colspan="8" class="gf-empty">Aún no hay operadores dados de alta.</td></tr> }
         </tbody>
       </table>
     </div>
   </div>
 
+  <!-- MODAL CONFIRMACIÓN ELIMINAR VEHÍCULO -->
+  @if (modalEliminarVehiculoAbierto && vehiculoAEliminar) {
+    <div class="modal-backdrop" (click)="cerrarModalEliminarVehiculo()"></div>
+    <div class="modal-dialog" style="max-width: 400px;">
+      <div class="modal-content">
+        <div class="modal-header"><h3>Eliminar vehículo</h3><button type="button" class="modal-close" (click)="cerrarModalEliminarVehiculo()">×</button></div>
+        <div class="modal-body"><p>¿Eliminar <strong>{{ vehiculoAEliminar.numeroEconomico }}</strong>?</p><p style="color:#888;font-size:0.85rem;">Esta acción no se puede deshacer.</p></div>
+        <div class="modal-footer">
+          <button type="button" class="gf-btn gf-btn-ghost" (click)="cerrarModalEliminarVehiculo()">Cancelar</button>
+          <button type="button" class="gf-btn gf-btn-primary" (click)="ejecutarEliminarVehiculo()" style="background:#d31219;border-color:#d31219;">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL CONFIRMACIÓN ELIMINAR OPERADOR -->
+  @if (modalEliminarOperadorAbierto && operadorAEliminar) {
+    <div class="modal-backdrop" (click)="cerrarModalEliminarOperador()"></div>
+    <div class="modal-dialog" style="max-width: 400px;">
+      <div class="modal-content">
+        <div class="modal-header"><h3>Eliminar operador</h3><button type="button" class="modal-close" (click)="cerrarModalEliminarOperador()">×</button></div>
+        <div class="modal-body"><p>¿Eliminar a <strong>{{ operadorAEliminar.nombre }} {{ operadorAEliminar.apellidoPaterno }}</strong>?</p><p style="color:#888;font-size:0.85rem;">Esta acción no se puede deshacer.</p></div>
+        <div class="modal-footer">
+          <button type="button" class="gf-btn gf-btn-ghost" (click)="cerrarModalEliminarOperador()">Cancelar</button>
+          <button type="button" class="gf-btn gf-btn-primary" (click)="ejecutarEliminarOperador()" style="background:#d31219;border-color:#d31219;">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- SECCIÓN: ALERTAS DE CONTROL -->
   <div class="gf-card">
     <h3 class="gf-subtitle">Alertas de control</h3>
-    <div class="gf-alerts">
+    <div class="gf-form">
       @if (!notificacionesActivas.length) {
-        <div class="gf-msg gf-msg-ok">Sin alertas próximas de licencia, verificaciones o seguro.</div>
+        <div class="gf-empty" style="width: 100%;">Sin alertas próximas de licencia, verificaciones o seguro.</div>
       }
       @for (alerta of notificacionesActivas; track alerta.clave) {
-        <div class="gf-msg gf-msg-error gf-msg-dismissible">
+        <div class="gf-msg gf-msg-error" style="width: 100%; margin-bottom: 8px; display: flex; justify-content: space-between;">
           <span>{{ alerta.mensaje }}</span>
-          <button type="button" class="gf-close" (click)="cerrarNotificacion(alerta.clave)" aria-label="Cerrar notificación">
-            ×
-          </button>
+          <button type="button" style="background: none; border: none; color: inherit; cursor: pointer; font-weight: bold;">×</button>
         </div>
       }
     </div>

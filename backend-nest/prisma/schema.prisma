@@ -1,0 +1,245 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// MÓDULO: AUTENTICACIÓN Y USUARIOS
+// ============================================================
+
+model Usuario {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  nombre    String
+  apellido  String
+  password  String
+  puesto    String?
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  viajesCreados   Viaje[]
+  comentarios     ComentarioViaje[]
+}
+
+// ============================================================
+// MÓDULO: GESTIÓN DE FLOTA (Vehículos)
+// ============================================================
+
+model Vehiculo {
+  id                  String   @id @default(cuid())
+  numeroEconomico     String   @unique
+  placas              String   @unique
+  tipo                String   // tracto, caja, camioneta, van, rabon, torton
+  tipoCaja            String?  // thermo, seca (solo si tipo=caja)
+  vencimientoSeguro   String?  // YYYY-MM-DD
+  aseguradora         String?
+  polizaSeguro        String?
+  folioVerificacion   String?
+  vencimientoVerificacion String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  mantenimientos Mantenimiento[]
+}
+
+// ============================================================
+// MÓDULO: RECURSOS HUMANOS (Operadores/Empleados)
+// ============================================================
+
+model Operador {
+  id                  String   @id @default(cuid())
+  nombre              String
+  apellidoPaterno     String
+  apellidoMaterno     String
+  rfc                 String   @unique
+  curp                String   @unique
+  nss                 String
+  infonavit           String?
+  fechaIngreso        String   // YYYY-MM-DD
+  salarioDiario       Float
+  tipoContrato        String   // base, eventual, honorarios
+  rol                 String   @default("Operador")
+  estatus             String   @default("activo")
+  folioAptoMedico     String?
+  vencimientoAptoMedico String?
+  folioLicencia       String?
+  vencimientoLicencia String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+// ============================================================
+// MÓDULO: CLIENTES
+// ============================================================
+
+model Cliente {
+  id              String   @id @default(cuid())
+  nombre          String   @unique
+  rfc             String?
+  direccionFiscal String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  viajes Viaje[]
+}
+
+// ============================================================
+// MÓDULO: VIAJES / SERVICIOS (Vista General)
+// ============================================================
+
+model Viaje {
+  id              String   @id @default(cuid())
+  nombre          String
+  unidad          String
+  operador        String
+  servicio        String
+  ruta            String
+  nota            String?
+  estatus         String   @default("amarillo")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  etaCarga        String
+  llegadaCarga    String?
+  ingresoCarga    String?
+  horaCarga       String?
+  salidaCarga     String?
+  etaDescarga     String?
+  llegadaDescarga String?
+  ingresoDescarga String?
+  horaDescarga    String?
+  salidaDescarga  String?
+  referencia      String?
+  observaciones   String?
+  cliente         String?
+  clienteId       String?
+  costoServicio   Float   @default(0)
+  cobranzaTerminada Boolean @default(false)
+
+  creadorId String
+  creador   Usuario @relation(fields: [creadorId], references: [id])
+
+  clienteRel   Cliente?          @relation(fields: [clienteId], references: [id])
+  seguimientos RecoleccionSeguimiento[]
+  comentarios  ComentarioViaje[]
+  archivos     ArchivoViaje[]
+  gastosViaje  GastoViaje[]
+  facturaDatos FacturaDatos?
+  cobranzaPago CobranzaPago?
+}
+
+model RecoleccionSeguimiento {
+  id              String @id @default(cuid())
+  origen          String
+  destino         String
+  etaCarga        String?
+  llegadaCarga    String?
+  ingresoCarga    String?
+  horaCarga       String?
+  salidaCarga     String?
+  etaDescarga     String?
+  llegadaDescarga String?
+  ingresoDescarga String?
+  horaDescarga    String?
+  salidaDescarga  String?
+
+  viajeId String
+  viaje   Viaje @relation(fields: [viajeId], references: [id], onDelete: Cascade)
+}
+
+model ComentarioViaje {
+  id          String   @id @default(cuid())
+  mensaje     String
+  fechaIso    DateTime @default(now())
+
+  autorId String
+  autor   Usuario @relation(fields: [autorId], references: [id])
+
+  viajeId String
+  viaje   Viaje @relation(fields: [viajeId], references: [id], onDelete: Cascade)
+}
+
+model ArchivoViaje {
+  id        String @id @default(cuid())
+  nombre    String
+  mime      String
+  base64    String
+  categoria String // POD, CARTA_PORTE, FACTURA_PDF, REPORTE_PAGO
+
+  viajeId String
+  viaje   Viaje @relation(fields: [viajeId], references: [id], onDelete: Cascade)
+}
+
+// ============================================================
+// MÓDULO: FACTURACIÓN
+// ============================================================
+
+model FacturaDatos {
+  id              String  @id @default(cuid())
+  requiereCartaPorte Boolean @default(false)
+  folio           String?
+  uuid            String?
+  subtotal        Float?
+  iva             Float?
+  retencionIsr    Float?
+  retencionIva    Float?
+  total           Float?
+  fechaEmision    String?
+  fechaPago       String?
+  metodoPago      String?
+  formaPago       String?
+  estatusFactura  String  @default("pendiente")
+  observaciones   String?
+
+  viajeId String @unique
+  viaje   Viaje  @relation(fields: [viajeId], references: [id], onDelete: Cascade)
+}
+
+// ============================================================
+// MÓDULO: COBRANZA
+// ============================================================
+
+model CobranzaPago {
+  id          String  @id @default(cuid())
+  metodoPago  String?
+  fechaPago   String?
+  referencia  String?
+
+  viajeId String @unique
+  viaje   Viaje  @relation(fields: [viajeId], references: [id], onDelete: Cascade)
+}
+
+// ============================================================
+// MÓDULO: CUENTAS (Gastos por viaje)
+// ============================================================
+
+model GastoViaje {
+  id        String   @id @default(cuid())
+  concepto  String
+  monto     Float
+  fechaIso  DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  viajeId String
+  viaje   Viaje @relation(fields: [viajeId], references: [id], onDelete: Cascade)
+}
+
+// ============================================================
+// MÓDULO: MANTENIMIENTO
+// ============================================================
+
+model Mantenimiento {
+  id          String   @id @default(cuid())
+  fecha       String   // YYYY-MM-DD
+  descripcion String
+  costo       Float
+  createdAt   DateTime @default(now())
+
+  vehiculoId String
+  vehiculo   Vehiculo @relation(fields: [vehiculoId], references: [id], onDelete: Cascade)
+}

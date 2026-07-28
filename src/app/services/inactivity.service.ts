@@ -8,7 +8,7 @@ import { Subject } from 'rxjs';
 })
 export class InactivityService {
   private readonly INACTIVITY_TIME = 5 * 60 * 1000; // 5 minutos
-  private inactivityTimer: any;
+  private inactivityTimer: ReturnType<typeof setTimeout> | undefined;
   private readonly platformId = inject(PLATFORM_ID);
   private readonly router = inject(Router);
   readonly inactivityWarning$ = new Subject<void>();

@@ -1,10 +1,11 @@
 <section class="cb-shell" aria-label="Cobranza">
   <header class="cb-head">
     <div>
-      <span class="cb-eyebrow">Tesorería</span>
+      <span class="cb-eyebrow">Operación</span>
       <h2>Cobranza</h2>
       <p class="cb-help">
-        Viajes con factura PDF cargada en Facturación. Aquí subes el reporte de pago (RP) en PDF y marcas el viaje como terminado.
+        Aquí aparecen los viajes que ya tienen factura subida desde Facturación. 
+        Registra el pago, sube el reporte de pago (PDF) y marca como terminado.
       </p>
     </div>
   </header>
@@ -12,67 +13,139 @@
   @if (errorMsg) {
     <div class="cb-alert" role="alert">{{ errorMsg }}</div>
   }
+  @if (exitoMsg) {
+    <div class="cb-alert cb-alert-ok" role="status">{{ exitoMsg }}</div>
+  }
 
   @if (!viajes.length) {
-    <div class="cb-empty">No hay viajes en cobranza. Primero sube la factura en Facturación.</div>
+    <div class="cb-empty">No hay viajes pendientes de cobranza. Espera a que Facturación suba los documentos.</div>
   } @else {
     <div class="cb-list">
       @for (v of viajes; track trackById($index, v)) {
         <article class="cb-card" [class.cb-card-done]="v.cobranzaTerminada">
           <div class="cb-card-head">
             <h3>{{ v.nombre }}</h3>
+            <span class="cb-chip">{{ v.cliente || 'Sin cliente' }}</span>
             @if (v.cobranzaTerminada) {
-              <span class="cb-badge">Terminado</span>
+              <span class="cb-chip cb-chip-ok">Cobranza completada</span>
             }
           </div>
-          <p class="cb-meta">{{ v.cliente }} · Ref. {{ v.referencia || '—' }}</p>
-
           <dl class="cb-dl">
             <div><dt>Unidad</dt><dd>{{ v.unidad || '—' }}</dd></div>
             <div><dt>Operador</dt><dd>{{ v.operador || '—' }}</dd></div>
-            <div><dt>Ruta</dt><dd>{{ v.ruta || '—' }}</dd></div>
-            <div><dt>ETA carga</dt><dd>{{ v.seguimientos[0]?.etaCarga || v.etaCarga || '—' }}</dd></div>
-            <div><dt>ETA descarga</dt><dd>{{ v.seguimientos[0]?.etaDescarga || '—' }}</dd></div>
+            <div><dt>Referencia</dt><dd>{{ v.referencia || '—' }}</dd></div>
           </dl>
 
           <div class="cb-block">
-            <h4 class="cb-sub">Factura (PDF)</h4>
-            @if (v.facturaPdf; as fac) {
-              <div class="cb-row">
-                <span class="cb-pill">{{ fac.nombre }}</span>
-                <button type="button" class="cb-btn cb-btn-ghost" (click)="verArchivo(fac)">Ver factura</button>
-              </div>
-            }
+            <h4 class="cb-sub">Documentos desde Facturación</h4>
+            <div class="cb-files">
+              @if (v.facturaPdf) {
+                <span class="cb-pill cb-pill-ok">Factura: {{ v.facturaPdf.nombre }}</span>
+                <button type="button" class="cb-btn cb-btn-ghost" (click)="verArchivo(v.facturaPdf)">Ver</button>
+              }
+              @if (v.archivosCartaPorte.length) {
+                @for (cp of v.archivosCartaPorte; track cp.nombre + '-' + $index) {
+                  <span class="cb-pill">Carta porte: {{ cp.nombre }}</span>
+                  <button type="button" class="cb-btn cb-btn-ghost" (click)="verArchivo(cp)">Ver</button>
+                }
+              }
+            </div>
           </div>
 
-          <div class="cb-block">
-            <h4 class="cb-sub">Reporte de pago (RP, PDF)</h4>
-            @if (v.reportePagoPdf; as rp) {
-              <div class="cb-row">
-                <span class="cb-pill cb-pill-ok">{{ rp.nombre }}</span>
-                <button type="button" class="cb-btn cb-btn-ghost" (click)="verArchivo(rp)">Ver RP</button>
-                <button type="button" class="cb-btn cb-btn-ghost" (click)="quitarRp(v.id)">Quitar</button>
-              </div>
-            }
-            <label class="cb-upload">
-              <span class="cb-upload-label">{{ v.reportePagoPdf ? 'Reemplazar RP' : 'Subir RP (PDF)' }}</span>
-              <input class="cb-input" type="file" accept="application/pdf" (change)="onRpPdfSeleccionado($event, v.id)" />
-            </label>
-          </div>
-
-          <div class="cb-actions">
-            @if (!v.cobranzaTerminada) {
-              <button type="button" class="cb-btn cb-btn-primary" (click)="marcarViajeTerminado(v.id)">
-                Marcar viaje como terminado
+          @if (v.cobranzaTerminada) {
+            <div class="cb-block">
+              <h4 class="cb-sub">Pago registrado</h4>
+              <p class="cb-muted">
+                Método: {{ v.cobranzaMetodoPago || '—' }} |
+                Fecha: {{ v.cobranzaFechaPago || '—' }} |
+                Ref: {{ v.cobranzaReferencia || '—' }}
+              </p>
+              @if (v.reportePagoPdf) {
+                <div class="cb-files">
+                  <span class="cb-pill cb-pill-ok">RP: {{ v.reportePagoPdf.nombre }}</span>
+                  <button type="button" class="cb-btn cb-btn-ghost" (click)="verArchivo(v.reportePagoPdf)">Ver</button>
+                  <button type="button" class="cb-btn cb-btn-ghost" (click)="quitarRp(v.id)">Quitar</button>
+                </div>
+              }
+              <button type="button" class="cb-btn cb-btn-ghost" (click)="desmarcarTerminado(v.id)">
+                Reabrir cobranza
               </button>
-            } @else {
-              <button type="button" class="cb-btn cb-btn-outline" (click)="desmarcarTerminado(v.id)">
-                Desmarcar terminado
+            </div>
+          } @else {
+            <div class="cb-block">
+              <button type="button" class="cb-btn cb-btn-primary" (click)="abrirCobranza(v)">
+                Registrar pago
               </button>
-            }
-          </div>
+            </div>
+          }
         </article>
       }
+    </div>
+  }
+
+  <!-- Modal para registrar pago -->
+  @if (viajeEnPago) {
+    <div
+      class="modal-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Cerrar"
+      (click)="cerrarCobranza()"
+      (keydown.enter)="cerrarCobranza()"
+      (keydown.escape)="cerrarCobranza()"></div>
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Registrar pago - {{ viajeEnPago.nombre }}</h3>
+          <button type="button" class="modal-close" (click)="cerrarCobranza()">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="cb-form">
+            <div class="cb-field">
+              <label class="cb-label">
+                <span>Método de pago</span>
+                <select class="cb-input" [(ngModel)]="metodoPago">
+                  <option value="">Selecciona método</option>
+                  @for (m of metodosPago; track m.valor) {
+                    <option [value]="m.valor">{{ m.label }}</option>
+                  }
+                </select>
+              </label>
+            </div>
+            <div class="cb-field">
+              <label class="cb-label">
+                <span>Fecha de pago</span>
+                <input class="cb-input" type="date" [(ngModel)]="fechaPago" />
+              </label>
+            </div>
+            <div class="cb-field">
+              <label class="cb-label">
+                <span>Referencia (opcional)</span>
+                <input class="cb-input" type="text" placeholder="Número de referencia o folio" [(ngModel)]="referencia" />
+              </label>
+            </div>
+            <div class="cb-field">
+              <label class="cb-label">
+                <span>Reporte de pago PDF (opcional)</span>
+                <input
+                  class="cb-input"
+                  type="file"
+                  accept="application/pdf"
+                  (change)="onReportePagoPdfSeleccionado($event)" />
+              </label>
+            </div>
+            @if (errorMsg) {
+              <div class="cb-alert" role="alert">{{ errorMsg }}</div>
+            }
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="cb-btn cb-btn-ghost" (click)="cerrarCobranza()">Cancelar</button>
+          <button type="button" class="cb-btn cb-btn-primary" (click)="guardarPago()" [disabled]="guardando">
+            {{ guardando ? 'Guardando...' : 'Guardar pago' }}
+          </button>
+        </div>
+      </div>
     </div>
   }
 </section>

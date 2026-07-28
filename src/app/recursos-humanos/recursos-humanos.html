@@ -6,68 +6,115 @@
     </div>
   </header>
 
+  <app-toast [mensaje]="toastMsg" [tipo]="toastTipo" [mostrar]="toastMostrar"></app-toast>
+
+  <!-- FORMULARIO DE ALTA -->
   <div class="gf-card">
-    <h3 class="gf-subtitle">Alta de operadores</h3>
+    <h3 class="gf-subtitle">Agregar nuevo empleado</h3>
     <div class="gf-form">
       <label class="gf-field">
         <span class="gf-label">Nombre</span>
-        <input class="gf-input" type="text" placeholder="Nombre" [(ngModel)]="nombre" />
+        <input class="gf-input" type="text" placeholder="Nombre de pila" [(ngModel)]="nombre" name="nombre" />
       </label>
       <label class="gf-field">
-        <span class="gf-label">Apellido paterno</span>
-        <input class="gf-input" type="text" placeholder="Apellido paterno" [(ngModel)]="apellidoPaterno" />
+        <span class="gf-label">Apellido Paterno</span>
+        <input class="gf-input" type="text" placeholder="Apellido paterno" [(ngModel)]="apellidoPaterno" name="apellidoPaterno" />
       </label>
       <label class="gf-field">
-        <span class="gf-label">Apellido materno</span>
-        <input class="gf-input" type="text" placeholder="Apellido materno" [(ngModel)]="apellidoMaterno" />
-      </label>
-      <label class="gf-field">
-        <span class="gf-label">Folio apto médico</span>
-        <input class="gf-input" type="text" placeholder="Folio apto médico" [(ngModel)]="folioAptoMedico" />
-      </label>
-      <label class="gf-field">
-        <span class="gf-label">Vencimiento apto médico</span>
-        <input class="gf-input" type="date" [(ngModel)]="vencimientoAptoMedico" />
+        <span class="gf-label">Apellido Materno</span>
+        <input class="gf-input" type="text" placeholder="Apellido materno" [(ngModel)]="apellidoMaterno" name="apellidoMaterno" />
       </label>
       <label class="gf-field">
         <span class="gf-label">RFC</span>
-        <input class="gf-input" type="text" placeholder="RFC" [(ngModel)]="rfc" />
+        <input class="gf-input" type="text" placeholder="RFC con homoclave" [(ngModel)]="rfc" name="rfc" />
       </label>
       <label class="gf-field">
-        <span class="gf-label">Folio licencia</span>
-        <input class="gf-input" type="text" placeholder="Folio licencia" [(ngModel)]="folioLicencia" />
+        <span class="gf-label">CURP</span>
+        <input class="gf-input" type="text" placeholder="CURP" [(ngModel)]="curp" name="curp" />
       </label>
       <label class="gf-field">
-        <span class="gf-label">Vencimiento licencia</span>
-        <input class="gf-input" type="date" [(ngModel)]="vencimientoLicencia" />
+        <span class="gf-label">NSS (IMSS)</span>
+        <input class="gf-input" type="text" placeholder="Número de seguridad social" [(ngModel)]="nss" name="nss" />
       </label>
+      <label class="gf-field">
+        <span class="gf-label">Infonavit</span>
+        <input class="gf-input" type="text" placeholder="Crédito Infonavit (opcional)" [(ngModel)]="infonavit" name="infonavit" />
+      </label>
+      <label class="gf-field">
+        <span class="gf-label">Fecha de ingreso</span>
+        <input class="gf-input" type="date" [(ngModel)]="fechaIngreso" name="fechaIngreso" />
+      </label>
+      <label class="gf-field">
+        <span class="gf-label">Salario diario</span>
+        <input class="gf-input" type="number" step="0.01" min="0" placeholder="0.00" [(ngModel)]="salarioDiario" name="salarioDiario" />
+      </label>
+      <label class="gf-field">
+        <span class="gf-label">Tipo de contrato</span>
+        <select class="gf-input" [(ngModel)]="tipoContrato" name="tipoContrato">
+          <option value="base">Base</option>
+          <option value="eventual">Eventual</option>
+          <option value="honorarios">Honorarios</option>
+        </select>
+      </label>
+      <label class="gf-field">
+        <span class="gf-label">Rol</span>
+        <select class="gf-input" [(ngModel)]="rol" name="rol">
+          <option value="Operador">Operador</option>
+          <option value="Administrativo">Administrativo</option>
+          <option value="Monitoreo">Monitoreo</option>
+          <option value="Mantenimiento">Mantenimiento</option>
+        </select>
+      </label>
+
+      @if (rol === 'Operador') {
+        <label class="gf-field">
+          <span class="gf-label">Folio Apto Médico</span>
+          <input class="gf-input" type="text" placeholder="Folio del certificado médico" [(ngModel)]="folioAptoMedico" name="folioAptoMedico" />
+        </label>
+        <label class="gf-field">
+          <span class="gf-label">Vencimiento Apto Médico</span>
+          <input class="gf-input" type="date" [(ngModel)]="vencimientoAptoMedico" name="vencimientoAptoMedico" />
+        </label>
+        <label class="gf-field">
+          <span class="gf-label">Folio Licencia</span>
+          <input class="gf-input" type="text" placeholder="Número de licencia federal" [(ngModel)]="folioLicencia" name="folioLicencia" />
+        </label>
+        <label class="gf-field">
+          <span class="gf-label">Vencimiento Licencia</span>
+          <input class="gf-input" type="date" [(ngModel)]="vencimientoLicencia" name="vencimientoLicencia" />
+        </label>
+      }
+
       <label class="gf-field">
         <span class="gf-label">Estatus</span>
-        <select class="gf-input" [(ngModel)]="estatus">
+        <select class="gf-input" [(ngModel)]="estatus" name="estatus">
           <option value="activo">Activo</option>
           <option value="baja">Baja</option>
         </select>
       </label>
 
       <div class="gf-actions">
-        <button type="button" class="gf-btn gf-btn-primary" (click)="guardarOperador()">Guardar operador</button>
-        @if (errorMsg) {
-          <div class="gf-msg gf-msg-error">{{ errorMsg }}</div>
-        }
-        @if (exitoMsg) {
-          <div class="gf-msg gf-msg-ok">{{ exitoMsg }}</div>
-        }
+        <button type="button" class="gf-btn rh-btn-primary" (click)="guardarOperador()" [disabled]="guardando">
+          {{ guardando ? 'Guardando...' : 'Guardar' }}
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Modal de edición de operadores -->
+  <!-- MODAL DE EDICIÓN -->
   @if (modoEdicion && operadorEnEdicion) {
-    <div class="modal-backdrop" (click)="cancelarEdicion()"></div>
+    <div
+      class="modal-backdrop"
+      role="button"
+      tabindex="0"
+      aria-label="Cerrar"
+      (click)="cancelarEdicion()"
+      (keydown.enter)="cancelarEdicion()"
+      (keydown.escape)="cancelarEdicion()"></div>
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h3>Editar Operador</h3>
+          <h3>Editar Empleado</h3>
           <button type="button" class="modal-close" (click)="cancelarEdicion()">×</button>
         </div>
         <div class="modal-body">
@@ -85,52 +132,98 @@
               <input class="gf-input" type="text" [(ngModel)]="apellidoMaterno" name="apellidoMaterno" />
             </label>
             <label class="gf-field">
-              <span class="gf-label">Folio Apto Médico</span>
-              <input class="gf-input" type="text" [(ngModel)]="folioAptoMedico" name="folioAptoMedico" />
-            </label>
-            <label class="gf-field">
-              <span class="gf-label">Vencimiento Apto Médico</span>
-              <input class="gf-input" type="date" [(ngModel)]="vencimientoAptoMedico" name="vencimientoAptoMedico" />
-            </label>
-            <label class="gf-field">
               <span class="gf-label">RFC</span>
               <input class="gf-input" type="text" [(ngModel)]="rfc" name="rfc" />
             </label>
             <label class="gf-field">
-              <span class="gf-label">Folio Licencia</span>
-              <input class="gf-input" type="text" [(ngModel)]="folioLicencia" name="folioLicencia" />
+              <span class="gf-label">CURP</span>
+              <input class="gf-input" type="text" [(ngModel)]="curp" name="curp" />
             </label>
             <label class="gf-field">
-              <span class="gf-label">Vencimiento Licencia</span>
-              <input class="gf-input" type="date" [(ngModel)]="vencimientoLicencia" name="vencimientoLicencia" />
+              <span class="gf-label">NSS</span>
+              <input class="gf-input" type="text" [(ngModel)]="nss" name="nss" />
             </label>
-            @if (errorMsg) {
-              <div class="gf-msg gf-msg-error">{{ errorMsg }}</div>
+            <label class="gf-field">
+              <span class="gf-label">Infonavit</span>
+              <input class="gf-input" type="text" [(ngModel)]="infonavit" name="infonavit" />
+            </label>
+            <label class="gf-field">
+              <span class="gf-label">Fecha ingreso</span>
+              <input class="gf-input" type="date" [(ngModel)]="fechaIngreso" name="fechaIngreso" />
+            </label>
+            <label class="gf-field">
+              <span class="gf-label">Salario diario</span>
+              <input class="gf-input" type="number" step="0.01" min="0" [(ngModel)]="salarioDiario" name="salarioDiario" />
+            </label>
+            <label class="gf-field">
+              <span class="gf-label">Tipo contrato</span>
+              <select class="gf-input" [(ngModel)]="tipoContrato" name="tipoContrato">
+                <option value="base">Base</option>
+                <option value="eventual">Eventual</option>
+                <option value="honorarios">Honorarios</option>
+              </select>
+            </label>
+            <label class="gf-field">
+              <span class="gf-label">Rol</span>
+              <select class="gf-input" [(ngModel)]="rol" name="rol">
+                <option value="Operador">Operador</option>
+                <option value="Administrativo">Administrativo</option>
+                <option value="Monitoreo">Monitoreo</option>
+                <option value="Mantenimiento">Mantenimiento</option>
+              </select>
+            </label>
+
+            @if (rol === 'Operador') {
+              <label class="gf-field">
+                <span class="gf-label">Folio Apto Médico</span>
+                <input class="gf-input" type="text" [(ngModel)]="folioAptoMedico" name="folioAptoMedico" />
+              </label>
+              <label class="gf-field">
+                <span class="gf-label">Vencimiento Apto Médico</span>
+                <input class="gf-input" type="date" [(ngModel)]="vencimientoAptoMedico" name="vencimientoAptoMedico" />
+              </label>
+              <label class="gf-field">
+                <span class="gf-label">Folio Licencia</span>
+                <input class="gf-input" type="text" [(ngModel)]="folioLicencia" name="folioLicencia" />
+              </label>
+              <label class="gf-field">
+                <span class="gf-label">Vencimiento Licencia</span>
+                <input class="gf-input" type="date" [(ngModel)]="vencimientoLicencia" name="vencimientoLicencia" />
+              </label>
             }
+
+            <label class="gf-field">
+              <span class="gf-label">Estatus</span>
+              <select class="gf-input" [(ngModel)]="estatus" name="estatus">
+                <option value="activo">Activo</option>
+                <option value="baja">Baja</option>
+              </select>
+            </label>
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="gf-btn gf-btn-ghost" (click)="cancelarEdicion()">Cancelar</button>
-          <button type="button" class="gf-btn gf-btn-primary" (click)="guardarEdicionOperador()">Guardar cambios</button>
+          <button type="button" class="gf-btn rh-btn-ghost" (click)="cancelarEdicion()">Cancelar</button>
+          <button type="button" class="gf-btn rh-btn-primary" (click)="guardarEdicionOperador()" [disabled]="guardando">
+            {{ guardando ? 'Guardando...' : 'Guardar cambios' }}
+          </button>
         </div>
       </div>
     </div>
   }
 
+  <!-- TABLA DE OPERADORES -->
   <div class="gf-card">
-    <h3 class="gf-subtitle">Operadores registrados</h3>
+    <h3 class="gf-subtitle">Empleados registrados</h3>
     <div class="gf-table-wrap">
-      <table class="gf-table" aria-label="Operadores en recursos humanos">
+      <table class="gf-table" aria-label="Empleados registrados">
         <thead>
           <tr>
             <th>Nombre completo</th>
-            <th>Estatus</th>
             <th>RFC</th>
-            <th>Folio apto médico</th>
-            <th>Vencimiento apto</th>
-            <th>Folio licencia</th>
-            <th>Vencimiento licencia</th>
-            <th>Estado licencia</th>
+            <th>CURP</th>
+            <th>NSS</th>
+            <th>Rol</th>
+            <th>Estatus</th>
             <th></th>
           </tr>
         </thead>
@@ -138,27 +231,39 @@
           @for (op of operadores; track op.id) {
             <tr>
               <td class="gf-strong">{{ op.nombre }} {{ op.apellidoPaterno }} {{ op.apellidoMaterno }}</td>
-              <td><span class="gf-pill">activo</span></td>
               <td>{{ op.rfc }}</td>
-              <td>{{ op.folioAptoMedico || '—' }}</td>
-              <td [class.gf-text-danger]="esAlertaVencimiento(op.vencimientoAptoMedico)">{{ op.vencimientoAptoMedico || '—' }}</td>
-              <td>{{ op.folioLicencia }}</td>
-              <td>{{ op.vencimientoLicencia || '—' }}</td>
-              <td [class.gf-text-danger]="esAlertaVencimiento(op.vencimientoLicencia)">
-                {{ estadoVencimiento(op.vencimientoLicencia) }}
-              </td>
+              <td>{{ op.curp }}</td>
+              <td>{{ op.nss }}</td>
+              <td>{{ op.rol || 'Operador' }}</td>
+              <td>{{ op.estatus || 'activo' }}</td>
               <td class="gf-right">
-                <button type="button" class="gf-btn gf-btn-ghost" (click)="eliminarOperador(op.id)">Eliminar</button>
+                <button type="button" class="gf-btn rh-btn-ghost" (click)="abrirEdicionOperador(op)">Editar</button>
+                <button type="button" class="gf-btn gf-btn-ghost" (click)="confirmarEliminarOperador(op)">Eliminar</button>
               </td>
             </tr>
           }
           @if (!operadores.length) {
             <tr>
-              <td colspan="9" class="gf-empty">Todavía no hay operadores dados de alta en RH.</td>
+              <td colspan="7" class="gf-empty">Aún no hay empleados registrados.</td>
             </tr>
           }
         </tbody>
       </table>
     </div>
   </div>
+
+  <!-- MODAL CONFIRMACIÓN ELIMINAR -->
+  @if (modalEliminarAbierto && operadorAEliminar) {
+    <div class="modal-backdrop" (click)="cerrarModalEliminar()"></div>
+    <div class="modal-dialog" style="max-width: 400px;">
+      <div class="modal-content">
+        <div class="modal-header"><h3>Eliminar empleado</h3><button type="button" class="modal-close" (click)="cerrarModalEliminar()">×</button></div>
+        <div class="modal-body"><p>¿Eliminar a <strong>{{ operadorAEliminar.nombre }} {{ operadorAEliminar.apellidoPaterno }}</strong>?</p><p style="color:#888;font-size:0.85rem;">Esta acción no se puede deshacer.</p></div>
+        <div class="modal-footer">
+          <button type="button" class="gf-btn gf-btn-ghost" (click)="cerrarModalEliminar()">Cancelar</button>
+          <button type="button" class="gf-btn gf-btn-primary" (click)="ejecutarEliminarOperador()" style="background:#d31219;border-color:#d31219;">Eliminar</button>
+        </div>
+      </div>
+    </div>
+  }
 </section>

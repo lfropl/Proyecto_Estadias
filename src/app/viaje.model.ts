@@ -29,6 +29,13 @@ export interface RecoleccionSeguimiento {
   salidaDescarga: string;
 }
 
+export interface GastoViaje {
+  id: string;
+  concepto: string;
+  monto: number;
+  fechaIso: string;
+}
+
 export interface ViajeRow {
   id: string;
   nombre: string;
@@ -58,7 +65,30 @@ export interface ViajeRow {
   archivosCartaPorte: ArchivoAdjunto[];
   /** PDF de factura (solo módulo Facturación) */
   facturaPdf: ArchivoAdjunto | null;
+  /** Indica si la factura requiere carta porte */
+  facturaRequiereCartaPorte?: boolean;
+  /** Datos fiscales de la factura */
+  facturaFolio?: string;
+  facturaUuid?: string;
+  facturaSubtotal?: number;
+  facturaIva?: number;
+  facturaRetencionIsr?: number;
+  facturaRetencionIva?: number;
+  facturaTotal?: number;
+  facturaFechaEmision?: string;
+  facturaFechaPago?: string;
+  facturaMetodoPago?: string;
+  facturaFormaPago?: string;
+  facturaEstatus?: 'pendiente' | 'emitida' | 'pagada' | 'cancelada';
+  facturaObservaciones?: string;
   /** Reporte de pago (solo módulo Cobranza) */
   reportePagoPdf: ArchivoAdjunto | null;
+  cobranzaMetodoPago?: string;
+  cobranzaFechaPago?: string;
+  cobranzaReferencia?: string;
+  /** Costo del servicio (para facturación y cuentas) */
+  costoServicio: number;
+  /** Gastos operativos asociados a este viaje */
+  gastos: GastoViaje[];
   cobranzaTerminada: boolean;
 }

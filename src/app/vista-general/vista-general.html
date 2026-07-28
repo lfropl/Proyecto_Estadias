@@ -73,15 +73,11 @@
           </div>
 
           <div class="vg-header-actions">
-            <button type="button" class="vg-action vg-action-ghost" (click)="logout()">
-              Log out
-            </button>
             <button type="button" class="vg-action vg-action-ghost" (click)="resetFiltro()">
               Limpiar
             </button>
-            <button type="button" class="vg-action vg-action-primary">
-              Filtrar
-              <span class="vg-caret" aria-hidden="true"></span>
+            <button type="button" class="vg-action vg-action-primary" (click)="logout()">
+              Log out
             </button>
           </div>
         </header>
@@ -161,14 +157,6 @@
                   <input class="vg-input" type="text" [value]="detalle.servicio || detalle.nombre" disabled />
                 </label>
                 <label class="vg-field">
-                  <span>Unidad</span>
-                  <input class="vg-input" type="text" [value]="detalle.unidad" disabled />
-                </label>
-                <label class="vg-field">
-                  <span>Operador</span>
-                  <input class="vg-input" type="text" [value]="detalle.operador" disabled />
-                </label>
-                <label class="vg-field">
                   <span>ETA</span>
                   <input class="vg-input" type="datetime-local" [value]="detalle.etaCarga" disabled />
                 </label>
@@ -177,73 +165,83 @@
                   <input class="vg-input" type="text" [value]="detalle.cliente" disabled />
                 </label>
                 <label class="vg-field">
+                  <span>Unidad</span>
+                  <select class="vg-input" [(ngModel)]="detalle.unidad" (ngModelChange)="onUnidadDetalleChange(detalle)">
+                    <option value="">Selecciona unidad</option>
+                    @for (u of unidadesDisponibles; track u.id) {
+                      <option [value]="u.numeroEconomico">{{ u.numeroEconomico }} ({{ u.tipo }})</option>
+                    }
+                  </select>
+                </label>
+                <label class="vg-field">
+                  <span>Operador</span>
+                  <select class="vg-input" [(ngModel)]="detalle.operador">
+                    <option value="">Selecciona operador</option>
+                    @for (op of operadoresActivos; track op.id) {
+                      <option [value]="op.nombre + ' ' + op.apellidoPaterno + ' ' + op.apellidoMaterno">
+                        {{ op.nombre }} {{ op.apellidoPaterno }}
+                      </option>
+                    }
+                  </select>
+                </label>
+                <label class="vg-field">
                   <span>Referencia</span>
-                  <input class="vg-input" type="text" [value]="detalle.referencia" disabled />
+                  <input class="vg-input" type="text" [(ngModel)]="detalle.referencia" placeholder="Referencia" />
                 </label>
               </div>
 
-              @for (seg of detalle.seguimientos; track $index) {
-                <h4 class="vg-section-title">Recoleccion {{ obtenerIndiceRecoleccion(detalle, seg) }}: {{ seg.origen || 'Origen' }} -> {{ seg.destino || 'Destino' }}</h4>
-                <h4 class="vg-section-title">Seguimiento de carga</h4>
-                <div class="vg-detail-grid">
-                  <label class="vg-field">
-                    <span>Hora de llegada</span>
-                    <input class="vg-input" type="datetime-local" [(ngModel)]="seg.llegadaCarga" />
-                  </label>
-                  <label class="vg-field">
-                    <span>Diferencia (ETA-Llegada)</span>
-                    <input
-                      class="vg-input"
-                      [class.vg-input-negative]="esDiferenciaNegativa(diferenciaEtaLlegadaCarga(seg))"
-                      type="text"
-                      [value]="diferenciaEtaLlegadaCarga(seg)"
-                      disabled />
-                  </label>
-                  <label class="vg-field">
-                    <span>Fecha y hora de ingreso</span>
-                    <input class="vg-input" type="datetime-local" [(ngModel)]="seg.ingresoCarga" />
-                  </label>
-                  <label class="vg-field">
-                    <span>Fecha y hora de carga</span>
-                    <input class="vg-input" type="datetime-local" [(ngModel)]="seg.horaCarga" />
-                  </label>
-                  <label class="vg-field">
-                    <span>Fecha y hora de salida</span>
-                    <input class="vg-input" type="datetime-local" [(ngModel)]="seg.salidaCarga" />
-                  </label>
-                </div>
-
-                <h4 class="vg-section-title">Seguimiento de descarga</h4>
-                <div class="vg-detail-grid">
-                  <label class="vg-field">
-                    <span>ETA llegada a descarga</span>
-                    <input class="vg-input" type="datetime-local" [(ngModel)]="seg.etaDescarga" />
-                  </label>
-                  <label class="vg-field">
-                    <span>Hora de llegada</span>
-                    <input class="vg-input" type="datetime-local" [(ngModel)]="seg.llegadaDescarga" />
-                  </label>
-                  <label class="vg-field">
-                    <span>Diferencia (ETA-Llegada)</span>
-                    <input
-                      class="vg-input"
-                      [class.vg-input-negative]="esDiferenciaNegativa(diferenciaEtaLlegadaDescarga(seg))"
-                      type="text"
-                      [value]="diferenciaEtaLlegadaDescarga(seg)"
-                      disabled />
-                  </label>
-                  <label class="vg-field">
-                    <span>Hora de ingreso</span>
-                    <input class="vg-input" type="datetime-local" [(ngModel)]="seg.ingresoDescarga" />
-                  </label>
-                  <label class="vg-field">
-                    <span>Hora de descarga</span>
-                    <input class="vg-input" type="datetime-local" [(ngModel)]="seg.horaDescarga" />
-                  </label>
-                  <label class="vg-field">
-                    <span>Hora de salida</span>
-                    <input class="vg-input" type="datetime-local" [(ngModel)]="seg.salidaDescarga" />
-                  </label>
+              @if (detalle.seguimientos.length) {
+                <h4 class="vg-section-title">Recolecciones ({{ detalle.seguimientos.length }})</h4>
+                @for (seg of detalle.seguimientos; track $index) {
+                  <div class="vg-recoleccion-block">
+                    <div class="vg-recoleccion-head">
+                      <span class="vg-recoleccion-label">Recolección {{ $index + 1 }}</span>
+                      @if (detalle.seguimientos.length > 1) {
+                        <button type="button" class="vg-action vg-action-ghost vg-btn-inline" (click)="quitarRecoleccionDetalle($index)">
+                          Quitar
+                        </button>
+                      }
+                    </div>
+                    <div class="vg-detail-grid">
+                      <label class="vg-field">
+                        <span>Origen</span>
+                        <input class="vg-input" type="text" [(ngModel)]="seg.origen" />
+                      </label>
+                      <label class="vg-field">
+                        <span>Destino</span>
+                        <input class="vg-input" type="text" [(ngModel)]="seg.destino" />
+                      </label>
+                      <label class="vg-field">
+                        <span>ETA carga</span>
+                        <input class="vg-input" type="datetime-local" [(ngModel)]="seg.etaCarga" />
+                      </label>
+                      <label class="vg-field">
+                        <span>Hora de llegada</span>
+                        <input class="vg-input" type="datetime-local" [(ngModel)]="seg.llegadaCarga" />
+                      </label>
+                      <label class="vg-field">
+                        <span>Hora de carga</span>
+                        <input class="vg-input" type="datetime-local" [(ngModel)]="seg.horaCarga" />
+                      </label>
+                      <label class="vg-field">
+                        <span>Hora de salida</span>
+                        <input class="vg-input" type="datetime-local" [(ngModel)]="seg.salidaCarga" />
+                      </label>
+                      <label class="vg-field">
+                        <span>ETA descarga</span>
+                        <input class="vg-input" type="datetime-local" [(ngModel)]="seg.etaDescarga" />
+                      </label>
+                      <label class="vg-field">
+                        <span>Hora de descarga</span>
+                        <input class="vg-input" type="datetime-local" [(ngModel)]="seg.horaDescarga" />
+                      </label>
+                    </div>
+                  </div>
+                }
+                <div style="margin-top: 0.75rem;">
+                  <button type="button" class="vg-action vg-action-ghost" (click)="agregarRecoleccionDetalle()">
+                    + Agregar otra recolección
+                  </button>
                 </div>
               }
 
@@ -257,8 +255,8 @@
                       placeholder="Escribe un comentario para este viaje"
                       [(ngModel)]="comentarioDetalleInput"
                       (keydown.enter)="agregarComentarioDetalle()" />
-                    <button type="button" class="vg-action vg-action-primary vg-btn-inline" (click)="agregarComentarioDetalle()">
-                      Enviar
+                    <button type="button" class="vg-action vg-action-primary vg-btn-inline" (click)="agregarComentarioDetalle()" [disabled]="guardando">
+                      {{ guardando ? 'Enviando...' : 'Enviar' }}
                     </button>
                   </div>
                   @if (detalle.comentarios.length) {
@@ -324,7 +322,9 @@
                 </label>
               </div>
               <div class="vg-detail-actions">
-                <button type="button" class="vg-action vg-action-primary" (click)="guardarDetalle()">Guardar</button>
+                <button type="button" class="vg-action vg-action-primary" (click)="guardarDetalle()" [disabled]="guardando">
+                  {{ guardando ? 'Guardando...' : 'Guardar' }}
+                </button>
               </div>
             </section>
           }
@@ -332,140 +332,29 @@
           <section class="vg-registro">
             <div class="vg-registro-head">
               <div class="vg-registro-help">
-                Captura el registro operativo del viaje y define el nombre del servicio como debe mostrarse en General.
-                @if (registroErrorMsg) {
-                  <div class="vg-help-error">{{ registroErrorMsg }}</div>
-                }
+                Registro rápido: ETA, origen, destino y cliente. El resto se completa desde General.
+                @if (registroErrorMsg) { <div class="vg-help-error">{{ registroErrorMsg }}</div> }
               </div>
               <div class="vg-header-actions">
-                <button type="button" class="vg-action vg-action-primary" (click)="registrarServicios()">
-                  Registrar servicio
+                <button type="button" class="vg-action vg-action-primary" (click)="registrarServicios()" [disabled]="guardando">
+                  {{ guardando ? 'Registrando...' : 'Registrar servicio' }}
                 </button>
               </div>
             </div>
-
             <div class="vg-table-wrap">
               <table class="vg-table" aria-label="Registro de servicios">
-                <thead>
-                  <tr>
-                    <th>Unidad / Operador / Recolecciones</th>
-                    <th>Tipo de unidad</th>
-                    <th>Caja</th>
-                    <th>ETA</th>
-                    <th>Cliente</th>
-                    <th>Referencia</th>
-                  </tr>
-                </thead>
+                <thead><tr><th>ETA</th><th>Origen</th><th>Destino</th><th>Cliente</th></tr></thead>
                 <tbody>
                   @for (row of registroServicios; track row.id) {
                     <tr>
-                      <td class="vg-cell-stack">
-                        <input
-                          class="vg-input"
-                          type="text"
-                          placeholder="Nombre del servicio"
-                          [(ngModel)]="row.servicio" />
-                        <input
-                          class="vg-input"
-                          type="text"
-                          placeholder="Unidad"
-                          list="unidades-activa-list"
-                          [(ngModel)]="row.unidad"
-                          (ngModelChange)="onUnidadChange(row)" />
-                        <datalist id="unidades-activa-list">
-                          @for (u of unidadesDisponibles; track u.id) {
-                            <option [value]="u.numeroEconomico">{{ u.tipo }}</option>
-                          }
-                        </datalist>
-                        <select class="vg-input" [(ngModel)]="row.operador">
-                          <option value="">Selecciona operador</option>
-                          @for (op of operadoresActivos; track op.id) {
-                            <option [value]="op.nombre + ' ' + op.apellidoPaterno + ' ' + op.apellidoMaterno">
-                              {{ op.nombre }} {{ op.apellidoPaterno }} {{ op.apellidoMaterno }}
-                            </option>
-                          }
-                        </select>
-                        <label class="vg-checkline">
-                          <input
-                            type="checkbox"
-                            [(ngModel)]="row.tieneMultiplesRecolecciones"
-                            (ngModelChange)="toggleMultiplesRecolecciones(row)" />
-                          <span>Mas de una recoleccion</span>
-                        </label>
-                        @if (row.tieneMultiplesRecolecciones) {
-                          <select
-                            class="vg-input"
-                            [(ngModel)]="row.totalRecolecciones"
-                            (ngModelChange)="onTotalRecoleccionesChange(row)">
-                            @for (cant of opcionesRecoleccion; track cant) {
-                              <option [ngValue]="cant">{{ cant }} recoleccion(es)</option>
-                            }
-                          </select>
-                        }
-                        <div class="vg-recolecciones">
-                          @for (rec of row.recolecciones; track $index) {
-                            <div class="vg-recoleccion-item">
-                              <small class="vg-muted">Recoleccion {{ $index + 1 }}</small>
-                              <input
-                                class="vg-input"
-                                type="text"
-                                placeholder="Origen"
-                                [(ngModel)]="rec.origen" />
-                              <input
-                                class="vg-input"
-                                type="text"
-                                placeholder="Destino"
-                                [(ngModel)]="rec.destino" />
-                            </div>
-                          }
-                        </div>
-                      </td>
-
-                      <td>
-                        <input class="vg-input" type="text" [value]="row.tipoUnidad || 'Sin definir'" disabled />
-                      </td>
-
-                      <td>
-                        @if (row.tipoUnidad === 'tracto') {
-                          <div class="vg-cell-stack">
-                            <select class="vg-input" [(ngModel)]="row.cajaTipo" (ngModelChange)="onCajaTipoChange(row)">
-                              <option value="">Tipo de caja</option>
-                              <option value="thermo">Thermo</option>
-                              <option value="seca">Seca</option>
-                            </select>
-                            <input
-                              class="vg-input"
-                              type="text"
-                              placeholder="Caja (ej. TH101 / 201)"
-                              [attr.list]="'cajas-list-' + row.id"
-                              [(ngModel)]="row.cajaNumero"
-                              [class.is-invalid]="row.cajaTipo && !cajaNumeroValido(row)" />
-                            <datalist [id]="'cajas-list-' + row.id">
-                              @for (caja of cajasDisponibles(row.cajaTipo); track caja.id) {
-                                <option [value]="caja.numeroEconomico">{{ caja.tipoCaja }}</option>
-                              }
-                            </datalist>
-                          </div>
-                        } @else {
-                          <span class="vg-muted">—</span>
-                        }
-                      </td>
-
-                      <td>
-                        <input class="vg-input" type="datetime-local" [(ngModel)]="row.eta" />
-                      </td>
-
+                      <td><input class="vg-input" type="datetime-local" [(ngModel)]="row.eta" /></td>
+                      <td><input class="vg-input" type="text" placeholder="Origen" [(ngModel)]="row.origen" /></td>
+                      <td><input class="vg-input" type="text" placeholder="Destino" [(ngModel)]="row.destino" /></td>
                       <td>
                         <select class="vg-input" [(ngModel)]="row.clienteId">
                           <option value="">Selecciona</option>
-                          @for (c of clientes; track c.id) {
-                            <option [value]="c.id">{{ c.nombre }}</option>
-                          }
+                          @for (c of clientes; track c.id) { <option [value]="c.id">{{ c.nombre }}</option> }
                         </select>
-                      </td>
-
-                      <td>
-                        <input class="vg-input" type="text" placeholder="Referencia" [(ngModel)]="row.referencia" />
                       </td>
                     </tr>
                   }
@@ -477,18 +366,35 @@
           <app-gestion-flota></app-gestion-flota>
         } @else if (seccionActiva === 'recursos-humanos') {
           <app-recursos-humanos></app-recursos-humanos>
+        } @else if (seccionActiva === 'clientes') {
+          <app-clientes></app-clientes>
         } @else if (seccionActiva === 'facturacion') {
           <app-facturacion></app-facturacion>
-        } @else if (seccionActiva === 'nominas') {
-          <app-nominas></app-nominas>
-        } @else if (seccionActiva === 'cuentas') {
-          <app-cuentas></app-cuentas>
         } @else if (seccionActiva === 'cobranza') {
           <app-cobranza></app-cobranza>
         } @else if (seccionActiva === 'mantenimiento') {
           <app-mantenimiento></app-mantenimiento>
+        } @else if (seccionActiva === 'usuarios') {
+          <app-usuarios></app-usuarios>
         }
       </section>
     </div>
   </ion-content>
+
+  <!-- Modal Logout -->
+  @if (modalLogoutAbierto) {
+    <div style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.5)" (click)="cerrarModalLogout()">
+      <div style="background:white;border-radius:12px;padding:1.5rem;max-width:380px;width:90%;box-shadow:0 8px 30px rgba(0,0,0,0.2);position:relative" (click)="$event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <h3 style="margin:0;font-size:1.1rem;font-weight:700;color:#2d3236">Cerrar sesión</h3>
+          <button type="button" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:#666" (click)="cerrarModalLogout()">×</button>
+        </div>
+        <p style="margin:0 0 1.25rem;color:#2d3236;line-height:1.5">¿Estás seguro de que deseas cerrar sesión?</p>
+        <div style="display:flex;gap:0.5rem;justify-content:flex-end">
+          <button type="button" class="vg-action vg-action-ghost" (click)="cerrarModalLogout()">Cancelar</button>
+          <button type="button" class="vg-action vg-action-primary" (click)="confirmarLogout()">Cerrar sesión</button>
+        </div>
+      </div>
+    </div>
+  }
 </div>

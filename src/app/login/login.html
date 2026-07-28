@@ -45,11 +45,12 @@
           </div>
         </div>
 
-        <button type="submit" class="login-submit">Iniciar Sesión</button>
+        <button type="submit" class="login-submit" [disabled]="guardando">
+          {{ guardando ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
+        </button>
       </form>
 
       <div class="login-footer-links">
-        <button type="button" class="link-like-btn" (click)="irARegistro()">Registro</button>
       </div>
     </div>
   </div>
