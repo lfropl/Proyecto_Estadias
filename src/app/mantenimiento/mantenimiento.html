@@ -1,1 +1,98 @@
-<p>mantenimiento works!</p>
+<section class="mt-shell" aria-label="Mantenimiento">
+  <header class="mt-head">
+    <div class="mt-title">
+      <span class="mt-eyebrow">Bitácora</span>
+      <h2>Mantenimiento</h2>
+    </div>
+    <div class="mt-header-actions">
+      <button type="button" class="mt-btn mt-btn-primary" (click)="abrirModalNuevo()">+ Nuevo registro</button>
+    </div>
+  </header>
+
+  <app-toast [mensaje]="toastMsg" [tipo]="toastTipo" [mostrar]="toastMostrar"></app-toast>
+
+  @if (registros.length) {
+    <div class="mt-summary">
+      <span class="mt-summary-label">Total gastado en mantenimiento:</span>
+      <span class="mt-summary-value">{{ formatearMoneda(totalGastos()) }}</span>
+    </div>
+  }
+
+  <div class="mt-card">
+    <div class="mt-table-wrap">
+      <table class="mt-table" aria-label="Bitácora de mantenimiento">
+        <thead><tr><th>Fecha</th><th>Unidad</th><th>Descripción</th><th>Costo</th><th></th></tr></thead>
+        <tbody>
+          @for (r of registros; track trackById($index, r)) {
+            <tr>
+              <td>{{ r.fecha }}</td>
+              <td class="mt-strong">{{ r.unidadNombre }}</td>
+              <td>{{ r.descripcion }}</td>
+              <td class="mt-cost">{{ formatearMoneda(r.costo) }}</td>
+              <td class="mt-right">
+                <button type="button" class="mt-btn mt-btn-ghost" (click)="confirmarEliminar(r)">Eliminar</button>
+              </td>
+            </tr>
+          }
+          @if (!registros.length) {
+            <tr><td colspan="5" class="mt-empty">No hay registros de mantenimiento. Agrega el primero.</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal nuevo registro -->
+  @if (modalAbierto) {
+    <div class="modal-backdrop" role="button" tabindex="0" (click)="cerrarModal()" (keydown.escape)="cerrarModal()"></div>
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Nuevo registro de mantenimiento</h3>
+          <button type="button" class="modal-close" (click)="cerrarModal()">×</button>
+        </div>
+        <div class="modal-body">
+          <form class="mt-form">
+            <label class="mt-field"><span class="mt-label">Fecha</span><input class="mt-input" type="date" [(ngModel)]="fecha" name="fecha" /></label>
+            <label class="mt-field"><span class="mt-label">Unidad</span>
+              <select class="mt-input" [(ngModel)]="unidadId" name="unidadId">
+                <option value="">Selecciona unidad</option>
+                @for (v of vehiculos; track trackByVehiculo($index, v)) {
+                  <option [value]="v.id">{{ v.numeroEconomico }} ({{ v.tipo }})</option>
+                }
+              </select>
+            </label>
+            <label class="mt-field"><span class="mt-label">Descripción</span><input class="mt-input" type="text" placeholder="¿Qué se le hizo?" [(ngModel)]="descripcion" name="descripcion" /></label>
+            <label class="mt-field"><span class="mt-label">Costo ($)</span><input class="mt-input" type="number" step="0.01" min="0" placeholder="0.00" [(ngModel)]="costo" name="costo" /></label>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="mt-btn mt-btn-ghost" (click)="cerrarModal()">Cancelar</button>
+          <button type="button" class="mt-btn mt-btn-primary" (click)="guardarRegistro()" [disabled]="guardando">
+            {{ guardando ? 'Guardando...' : 'Guardar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal confirmación eliminar -->
+  @if (modalEliminarAbierto && registroAEliminar) {
+    <div class="modal-backdrop" role="button" tabindex="0" (click)="cerrarModalEliminar()" (keydown.escape)="cerrarModalEliminar()"></div>
+    <div class="modal-dialog" style="max-width: 400px;">
+      <div class="modal-content">
+        <div class="modal-header"><h3>Eliminar registro</h3><button type="button" class="modal-close" (click)="cerrarModalEliminar()">×</button></div>
+        <div class="modal-body">
+          <p>¿Eliminar el registro de <strong>{{ registroAEliminar.unidadNombre }}</strong> del {{ registroAEliminar.fecha }}?</p>
+          <p style="color: #888; font-size: 0.85rem;">Esta acción no se puede deshacer.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="mt-btn mt-btn-ghost" (click)="cerrarModalEliminar()">Cancelar</button>
+          <button type="button" class="mt-btn mt-btn-primary" (click)="ejecutarEliminar()" style="background: #d31219; border-color: #d31219;" [disabled]="guardando">
+            {{ guardando ? 'Eliminando...' : 'Eliminar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</section>

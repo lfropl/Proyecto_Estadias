@@ -1,10 +1,11 @@
-import { Component, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, ChangeDetectorRef, inject, OnInit } from '@angular/core';
 import { IonContent } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { LoginService } from '../login-service';
 import { ActivityDetector } from '../services/activity.detector';
 import { InactivityService } from '../services/inactivity.service';
+import { apiFetch } from '../api-helper';
 
 @Component({
   selector: 'app-login',
@@ -13,7 +14,7 @@ import { InactivityService } from '../services/inactivity.service';
   templateUrl: './login.html',
   styleUrls: ['./login.scss'],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   username = '';
   password = '';
   errorMessage = '';
@@ -23,8 +24,20 @@ export class LoginComponent {
   private readonly inactivityService = inject(InactivityService);
   private readonly activityDetector = inject(ActivityDetector);
 
-  submit(): void {
-    const ok = this.loginService.login(this.username, this.password);
+  async ngOnInit() {
+    try {
+      const res = await apiFetch('/auth/has-users');
+      const data = await res.json();
+      if (!data.hasUsers) {
+        this.router.navigate(['/setup']);
+      }
+    } catch {
+      // Si no hay backend, no hacer nada
+    }
+  }
+
+  async submit(): Promise<void> {
+    const ok = await this.loginService.login(this.username, this.password);
     this.errorMessage = this.loginService.authError$.value;
     this.cdr.markForCheck();
     if (ok) {

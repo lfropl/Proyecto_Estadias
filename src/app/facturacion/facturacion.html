@@ -4,13 +4,17 @@
       <span class="fc-eyebrow">Operación</span>
       <h2>Facturación</h2>
       <p class="fc-help">
-        Aquí aparecen los viajes que ya tienen POD y el seguimiento completo en Vista general. Sube el PDF de la factura por viaje.
+        Aquí aparecen los viajes que ya tienen POD y seguimiento completo. Sube el PDF de la factura 
+        y si lo deseas, agrega la carta porte. Al subir la factura, la información pasa automáticamente a Cobranza.
       </p>
     </div>
   </header>
 
   @if (errorMsg) {
     <div class="fc-alert" role="alert">{{ errorMsg }}</div>
+  }
+  @if (exitoMsg) {
+    <div class="fc-alert fc-alert-ok" role="status">{{ exitoMsg }}</div>
   }
 
   @if (!viajes.length) {
@@ -22,14 +26,15 @@
           <div class="fc-card-head">
             <h3>{{ v.nombre }}</h3>
             <span class="fc-chip">{{ v.cliente || 'Sin cliente' }}</span>
+            @if (tieneDocumentos(v)) {
+              <span class="fc-chip fc-chip-ok">Factura subida</span>
+            }
           </div>
           <dl class="fc-dl">
             <div><dt>Unidad</dt><dd>{{ v.unidad || '—' }}</dd></div>
             <div><dt>Operador</dt><dd>{{ v.operador || '—' }}</dd></div>
             <div><dt>Ruta</dt><dd>{{ v.ruta || '—' }}</dd></div>
             <div><dt>Referencia</dt><dd>{{ v.referencia || '—' }}</dd></div>
-            <div><dt>ETA carga</dt><dd>{{ v.seguimientos[0]?.etaCarga || v.etaCarga || '—' }}</dd></div>
-            <div><dt>ETA descarga</dt><dd>{{ v.seguimientos[0]?.etaDescarga || '—' }}</dd></div>
           </dl>
 
           <div class="fc-block">
@@ -47,22 +52,50 @@
           </div>
 
           <div class="fc-block">
-            <h4 class="fc-sub">Factura (PDF)</h4>
+            <h4 class="fc-sub">Factura (PDF desde Facte.mx)</h4>
             @if (v.facturaPdf) {
               <div class="fc-files">
                 <span class="fc-pill fc-pill-ok">{{ v.facturaPdf.nombre }}</span>
                 <button type="button" class="fc-btn fc-btn-ghost" (click)="verArchivo(v.facturaPdf)">Ver</button>
                 <button type="button" class="fc-btn fc-btn-ghost" (click)="quitarFactura(v.id)">Quitar</button>
               </div>
-            }
-            <label class="fc-upload">
-              <span class="fc-upload-label">{{ v.facturaPdf ? 'Reemplazar PDF' : 'Subir PDF de factura' }}</span>
+            } @else {
+              <!-- Botón que abre el explorador de archivos -->
+              <button type="button" class="fc-btn fc-btn-primary" (click)="triggerFacturaInput(v.id)">
+                Subir factura PDF
+              </button>
+              <!-- Input oculto -->
               <input
-                class="fc-input"
+                id="factura-input-{{ v.id }}"
                 type="file"
                 accept="application/pdf"
+                style="display: none"
                 (change)="onFacturaPdfSeleccionada($event, v.id)" />
-            </label>
+            }
+          </div>
+
+          <div class="fc-block">
+            <h4 class="fc-sub">Carta porte (PDF, opcional)</h4>
+            <div class="fc-files">
+              @if (v.archivosCartaPorte.length) {
+                @for (cp of v.archivosCartaPorte; track cp.nombre + '-' + $index; let i = $index) {
+                  <span class="fc-pill">{{ cp.nombre }}</span>
+                  <button type="button" class="fc-btn fc-btn-ghost" (click)="verArchivo(cp)">Ver</button>
+                  <button type="button" class="fc-btn fc-btn-ghost" (click)="quitarCartaPorte(v.id, i)">Quitar</button>
+                }
+              }
+              <!-- Botón que abre el explorador de archivos -->
+              <button type="button" class="fc-btn fc-btn-primary" (click)="triggerCartaPorteInput(v.id)">
+                Agregar carta porte
+              </button>
+              <!-- Input oculto -->
+              <input
+                id="carta-input-{{ v.id }}"
+                type="file"
+                accept="application/pdf"
+                style="display: none"
+                (change)="onCartaPortePdfSeleccionada($event, v.id)" />
+            </div>
           </div>
         </article>
       }

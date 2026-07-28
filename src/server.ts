@@ -8,21 +8,51 @@ import express from 'express';
 import { join } from 'node:path';
 
 const browserDistFolder = join(import.meta.dirname, '../browser');
+const BACKEND_URL = process.env['BACKEND_URL'] || 'http://localhost:3000';
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
-/**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/{*splat}', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
+// ─── BFF Proxy: reenvía auth y api al backend con JWT ───
+app.use(express.json());
+
+// Proxy middleware que intercepta peticiones a /auth y /api
+app.use((req, res, next) => {
+  const url = req.originalUrl || req.url;
+  
+  if (url.startsWith('/auth/') || url.startsWith('/api/')) {
+    handleProxy(req, res).catch(() => {
+      res.status(502).json({ message: 'Error de conexión con el backend.' });
+    });
+    return;
+  }
+  
+  next();
+});
+
+async function handleProxy(req: express.Request, res: express.Response) {
+  const target = `${BACKEND_URL}${req.originalUrl}`;
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (req.headers['authorization']) {
+    headers['Authorization'] = req.headers['authorization'] as string;
+  }
+
+  const body = req.method !== 'GET' && req.method !== 'HEAD' 
+    ? JSON.stringify(req.body) 
+    : undefined;
+
+  const backendRes = await fetch(target, {
+    method: req.method,
+    headers,
+    body,
+  });
+
+  const data = await backendRes.json();
+  res.status(backendRes.status).json(data);
+}
 
 /**
  * Serve static files from /browser

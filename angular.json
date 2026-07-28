@@ -70,7 +70,9 @@
         "serve": {
           "options": {
             "allowedHosts": [
-              "debi-superacidulated-renetta.ngrok-free.dev"
+              "debi-superacidulated-renetta.ngrok-free.dev",
+              "localhost",
+              "127.0.0.1"
             ]
           },
           "builder": "@angular/build:dev-server",

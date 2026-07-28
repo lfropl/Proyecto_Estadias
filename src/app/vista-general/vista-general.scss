@@ -662,6 +662,84 @@ ion-content.vg-page {
   cursor: not-allowed;
 }
 
+/* Modal Logout */
+.vg-modal-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  z-index: 10000 !important;
+  cursor: pointer;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.vg-modal-dialog {
+  position: relative !important;
+  z-index: 10001 !important;
+  max-width: 360px !important;
+  width: 85% !important;
+  margin: 0 auto;
+}
+
+.vg-modal-content {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.vg-modal-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--tgj-gray, #2d3236);
+  }
+}
+
+.vg-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: #333;
+  }
+}
+
+.vg-modal-body {
+  padding: 1.5rem;
+  color: var(--tgj-gray, #2d3236);
+  line-height: 1.5;
+}
+
+.vg-modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e5e5;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
 /* Responsive */
 @media (max-width: 960px) {
   .vg-shell {

@@ -1,1 +1,161 @@
-<p>cuentas works!</p>
+<section class="cu-shell" aria-label="Cuentas">
+  <header class="cu-head">
+    <div>
+      <span class="cu-eyebrow">Finanzas</span>
+      <h2>Cuentas</h2>
+      <p class="cu-help">
+        Control de ingresos y gastos. El costo del servicio se captura en Facturación.
+        Haz clic en "Gastos" para detallar los egresos de cada viaje.
+      </p>
+    </div>
+  </header>
+
+  <!-- ─── Panel Resumen ──────────────────────────────────── -->
+  <div class="cu-resumen">
+    <div class="cu-card-resumen cu-ingresos">
+      <span class="cu-card-icon"></span>
+      <div>
+        <span class="cu-card-label">Ingresos totales</span>
+        <strong class="cu-card-valor cu-verde">{{ formatMxn(totalIngresos) }}</strong>
+      </div>
+    </div>
+    <div class="cu-card-resumen cu-gastos">
+      <span class="cu-card-icon"></span>
+      <div>
+        <span class="cu-card-label">Gastos totales</span>
+        <strong class="cu-card-valor cu-rojo">{{ formatMxn(totalGastos) }}</strong>
+      </div>
+    </div>
+    <div class="cu-card-resumen cu-balance">
+      <span class="cu-card-icon"></span>
+      <div>
+        <span class="cu-card-label">Balance neto</span>
+        <strong class="cu-card-valor" [class.cu-verde]="balanceNeto >= 0" [class.cu-rojo]="balanceNeto < 0">
+          {{ formatMxn(balanceNeto) }}
+        </strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Mensajes ───────────────────────────────────────── -->
+  @if (errorMsg) {
+    <div class="cu-alert cu-alert-error" role="alert">{{ errorMsg }}</div>
+  }
+  @if (exitoMsg) {
+    <div class="cu-alert cu-alert-ok" role="status">{{ exitoMsg }}</div>
+  }
+
+  <!-- ─── Tabla de Viajes ────────────────────────────────── -->
+  @if (!viajes.length) {
+    <div class="cu-empty">No hay viajes registrados. Registra servicios en Vista general y asigna costos en Facturación.</div>
+  } @else {
+    <div class="cu-tabla-wrap">
+      <table class="cu-tabla">
+        <thead>
+          <tr>
+            <th>Viaje</th>
+            <th>Cliente</th>
+            <th class="cu-num">Ingreso</th>
+            <th class="cu-num">Gastos</th>
+            <th class="cu-num">Ganancia</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (v of viajes; track trackById($index, v)) {
+            <tr>
+              <td class="cu-td-principal">{{ v.nombre || v.servicio || 'Sin nombre' }}</td>
+              <td>{{ v.cliente || '—' }}</td>
+              <td class="cu-num">{{ formatMxn(v.costoServicio || 0) }}</td>
+              <td class="cu-num cu-rojo">{{ formatMxn(gastoTotalViaje(v)) }}</td>
+              <td class="cu-num" [class.cu-verde]="gananciaViaje(v) >= 0" [class.cu-rojo]="gananciaViaje(v) < 0">
+                {{ formatMxn(gananciaViaje(v)) }}
+              </td>
+              <td class="cu-acciones">
+                <button type="button" class="cu-btn cu-btn-sm"
+                  (click)="abrirGastosViaje(v.id)">
+                  {{ viajeSeleccionadoId === v.id ? '▲ Cerrar' : '▼ Gastos' }}
+                </button>
+              </td>
+            </tr>
+
+            <!-- Detalle de gastos expandible -->
+            @if (viajeSeleccionadoId === v.id) {
+              <tr class="cu-detalle-tr">
+                <td colspan="6">
+                  <div class="cu-detalle">
+                    <div class="cu-detalle-head">
+                      <h3>Gastos de: {{ v.nombre || v.servicio }}</h3>
+                      <span class="cu-detalle-sub">
+                        {{ v.unidad }} | {{ v.operador }} | {{ v.ruta }}
+                      </span>
+                      <button type="button" class="cu-btn cu-btn-ghost" (click)="cerrarGastosViaje()">✕</button>
+                    </div>
+
+                    <!-- Formulario agregar gasto -->
+                    <div class="cu-form-gasto">
+                      <input type="text" class="cu-input" placeholder="Concepto (ej. Diesel, Caseta...)"
+                        [(ngModel)]="nuevoGasto.concepto" />
+                      <input type="number" class="cu-input cu-input-monto" placeholder="Monto"
+                        [(ngModel)]="nuevoGasto.monto" min="0" step="0.01" />
+                      <button type="button" class="cu-btn cu-btn-primary" (click)="agregarGasto()">
+                        + Agregar
+                      </button>
+                    </div>
+
+                    <!-- Lista de gastos -->
+                    @if (!v.gastos.length) {
+                      <p class="cu-muted">Sin gastos registrados para este viaje.</p>
+                    } @else {
+                      <table class="cu-tabla-gastos">
+                        <thead>
+                          <tr>
+                            <th>Concepto</th>
+                            <th class="cu-num">Monto</th>
+                            <th>Fecha</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          @for (g of v.gastos; track trackByGastoId($index, g)) {
+                            <tr>
+                              <td>{{ g.concepto }}</td>
+                              <td class="cu-num cu-rojo">{{ formatMxn(g.monto) }}</td>
+                              <td>{{ formatFecha(g.fechaIso) }}</td>
+                              <td>
+                                <button type="button" class="cu-btn cu-btn-ghost cu-btn-sm"
+                                  (click)="eliminarGasto(v, g.id)">🗑</button>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <td><strong>Total gastos</strong></td>
+                            <td class="cu-num cu-rojo"><strong>{{ formatMxn(gastoTotalViaje(v)) }}</strong></td>
+                            <td colspan="2"></td>
+                          </tr>
+                          <tr>
+                            <td><strong>Ingreso</strong></td>
+                            <td class="cu-num cu-verde"><strong>{{ formatMxn(v.costoServicio || 0) }}</strong></td>
+                            <td colspan="2"></td>
+                          </tr>
+                          <tr>
+                            <td><strong>Ganancia</strong></td>
+                            <td class="cu-num" [class.cu-verde]="gananciaViaje(v) >= 0" [class.cu-rojo]="gananciaViaje(v) < 0">
+                              <strong>{{ formatMxn(gananciaViaje(v)) }}</strong></td>
+                            <td colspan="2"></td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

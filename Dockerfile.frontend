@@ -1,0 +1,31 @@
+# ─── Etapa 1: Builder ───────────────────────────────────
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copiar archivos de dependencias
+COPY package.json package-lock.json patches/ ./
+RUN npm install --ignore-scripts && npx patch-package
+
+# Copiar código fuente del frontend
+COPY angular.json tsconfig.json tsconfig.app.json tsconfig.spec.json ./
+COPY public/ public/
+COPY src/ src/
+
+# Compilar Angular SSR
+RUN npm run build
+
+# ─── Etapa 2: Producción ────────────────────────────────
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copiar solo lo necesario para SSR
+COPY --from=builder /app/package.json /app/package-lock.json ./
+RUN npm install --omit=dev --ignore-scripts
+
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 4000
+
+CMD ["node", "dist/proyecto-Estadias/server/server.mjs"]

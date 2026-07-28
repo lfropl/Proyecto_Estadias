@@ -1,74 +1,57 @@
-import { Injectable, PLATFORM_ID, inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
+import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { apiFetch } from './api-helper';
 
 export interface ClienteLocal {
   id: string;
   nombre: string;
+  rfc?: string;
+  direccionFiscal?: string;
 }
 
-@Injectable({
-  providedIn: 'root',
-})
+@Injectable({ providedIn: 'root' })
 export class ClientesService {
-  private readonly platformId = inject(PLATFORM_ID);
-  private readonly clientesKey = 'clientes_locales_estadias_json';
-
+  private base = `/api/clientes`;
   readonly clientes$ = new BehaviorSubject<ClienteLocal[]>([]);
 
   constructor() {
-    this.clientes$.next(this.leerClientes());
+    this.cargarClientes();
   }
 
-  obtenerClientes(): ClienteLocal[] {
-    const clientes = this.leerClientes();
-    this.clientes$.next(clientes);
-    return clientes;
-  }
-
-  agregarCliente(nombre: string): { success: boolean; error?: string; cliente?: ClienteLocal } {
-    if (!isPlatformBrowser(this.platformId)) {
-      return { success: false, error: 'Disponible solo en navegador.' };
-    }
-    const limpio = nombre.trim();
-    if (!limpio) return { success: false, error: 'Nombre de cliente es obligatorio.' };
-
-    const clientes = this.leerClientes();
-    const existe = clientes.some((c) => c.nombre.toLowerCase() === limpio.toLowerCase());
-    if (existe) return { success: false, error: 'Ese cliente ya existe.' };
-
-    const nuevo: ClienteLocal = {
-      id: `cli_${Date.now()}`,
-      nombre: limpio,
-    };
-    const actualizados = [...clientes, nuevo];
-    localStorage.setItem(this.clientesKey, JSON.stringify(actualizados));
-    this.clientes$.next(actualizados);
-    return { success: true, cliente: nuevo };
-  }
-
-  eliminarCliente(id: string): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    const actualizados = this.leerClientes().filter((c) => c.id !== id);
-    localStorage.setItem(this.clientesKey, JSON.stringify(actualizados));
-    this.clientes$.next(actualizados);
-  }
-
-  private leerClientes(): ClienteLocal[] {
-    if (!isPlatformBrowser(this.platformId)) return [];
-    const raw = localStorage.getItem(this.clientesKey);
-    if (!raw) {
-      const seed: ClienteLocal[] = [
-        { id: 'cli_demo_1', nombre: 'Cliente demo' },
-      ];
-      localStorage.setItem(this.clientesKey, JSON.stringify(seed));
-      return seed;
-    }
+  async cargarClientes() {
     try {
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? (parsed as ClienteLocal[]) : [];
+      const res = await apiFetch(this.base);
+      const data = await res.json();
+      this.clientes$.next(data);
     } catch {
-      return [];
+      this.clientes$.next([]);
     }
+  }
+
+  async obtenerClientes(): Promise<ClienteLocal[]> {
+    const res = await apiFetch(this.base);
+    const data = await res.json();
+    this.clientes$.next(data);
+    return data;
+  }
+
+  async agregarCliente(datos: { nombre: string; rfc?: string; direccionFiscal?: string }): Promise<{ success: boolean; error?: string; cliente?: ClienteLocal }> {
+    const res = await apiFetch(this.base, { method: 'POST', body: JSON.stringify(datos) });
+    if (!res.ok) throw new Error('Error al crear cliente');
+    const cliente = await res.json();
+    await this.cargarClientes();
+    return { success: true, cliente };
+  }
+
+  async actualizarCliente(id: string, datos: Partial<ClienteLocal>): Promise<{ success: boolean; error?: string }> {
+    const res = await apiFetch(`${this.base}/${id}`, { method: 'PUT', body: JSON.stringify(datos) });
+    if (!res.ok) throw new Error('Error al actualizar');
+    await this.cargarClientes();
+    return { success: true };
+  }
+
+  async eliminarCliente(id: string) {
+    await apiFetch(`${this.base}/${id}`, { method: 'DELETE' });
+    await this.cargarClientes();
   }
 }

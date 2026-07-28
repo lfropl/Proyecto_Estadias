@@ -11,9 +11,18 @@ import { authGuard, guestGuard } from './auth.guard';
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   {
+    path: 'setup',
+    loadComponent: () => import('./setup/setup').then((m) => m.SetupComponent),
+  },
+  {
     path: 'login',
     canActivate: [guestGuard],
     loadComponent: () => import('./login/login').then((m) => m.LoginComponent),
+  },
+  {
+    path: 'usuarios',
+    canActivate: [authGuard],
+    loadComponent: () => import('./vista-general/vista-general').then((m) => m.VistaGeneral),
   },
   {
     path: 'vista-general',
@@ -37,16 +46,6 @@ export const routes: Routes = [
   },
   {
     path: 'facturacion',
-    canActivate: [authGuard],
-    loadComponent: () => import('./vista-general/vista-general').then((m) => m.VistaGeneral),
-  },
-  {
-    path: 'nominas',
-    canActivate: [authGuard],
-    loadComponent: () => import('./vista-general/vista-general').then((m) => m.VistaGeneral),
-  },
-  {
-    path: 'cuentas',
     canActivate: [authGuard],
     loadComponent: () => import('./vista-general/vista-general').then((m) => m.VistaGeneral),
   },

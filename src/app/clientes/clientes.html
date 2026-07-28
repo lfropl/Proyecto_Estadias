@@ -1,0 +1,104 @@
+<section class="cl-shell" aria-label="Clientes">
+  <header class="cl-head">
+    <div class="cl-title">
+      <span class="cl-eyebrow">Catálogo</span>
+      <h2>Clientes</h2>
+    </div>
+    <div class="cl-header-actions">
+      <button type="button" class="cl-btn cl-btn-primary" (click)="abrirModalNuevo()">+ Nuevo cliente</button>
+    </div>
+  </header>
+
+  <app-toast [mensaje]="toastMsg" [tipo]="toastTipo" [mostrar]="toastMostrar"></app-toast>
+
+  <div class="cl-card">
+    <div class="cl-table-wrap">
+      <table class="cl-table" aria-label="Lista de clientes">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>RFC</th>
+            <th>Dirección</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of clientes; track trackById($index, c)) {
+            <tr>
+              <td class="cl-strong">{{ c.nombre }}</td>
+              <td>{{ c.rfc || '—' }}</td>
+              <td>{{ c.direccionFiscal || '—' }}</td>
+              <td class="cl-right">
+                <button type="button" class="cl-btn cl-btn-ghost" (click)="abrirModalEditar(c)" [disabled]="guardando">Editar</button>
+                <button type="button" class="cl-btn cl-btn-ghost" (click)="confirmarEliminar(c)" [disabled]="guardando">Eliminar</button>
+              </td>
+            </tr>
+          }
+          @if (!clientes.length) {
+            <tr>
+              <td colspan="4" class="cl-empty">No hay clientes registrados. Agrega el primero.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  @if (modalAbierto) {
+    <div class="modal-backdrop" role="button" tabindex="0" (click)="cerrarModal()" (keydown.escape)="cerrarModal()"></div>
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>{{ editando ? 'Editar cliente' : 'Nuevo cliente' }}</h3>
+          <button type="button" class="modal-close" (click)="cerrarModal()" [disabled]="guardando">×</button>
+        </div>
+        <div class="modal-body">
+          <form class="cl-form">
+            <label class="cl-field">
+              <span class="cl-label">Nombre del cliente</span>
+              <input class="cl-input" type="text" placeholder="Razón social o nombre" [(ngModel)]="nombre" name="nombre" [disabled]="guardando" />
+            </label>
+            <label class="cl-field">
+              <span class="cl-label">RFC</span>
+              <input class="cl-input" type="text" placeholder="RFC" [(ngModel)]="rfc" name="rfc" [disabled]="guardando" />
+            </label>
+            <label class="cl-field">
+              <span class="cl-label">Dirección</span>
+              <input class="cl-input" type="text" placeholder="Calle, número, colonia, ciudad" [(ngModel)]="direccionFiscal" name="direccionFiscal" [disabled]="guardando" />
+            </label>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="cl-btn cl-btn-ghost" (click)="cerrarModal()" [disabled]="guardando">Cancelar</button>
+          <button type="button" class="cl-btn cl-btn-primary" (click)="guardarCliente()" [disabled]="guardando">
+            {{ guardando ? 'Guardando...' : (editando ? 'Guardar cambios' : 'Agregar cliente') }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal de confirmación para eliminar -->
+  @if (modalEliminarAbierto && clienteAEliminar) {
+    <div class="modal-backdrop" role="button" tabindex="0" (click)="cerrarModalEliminar()" (keydown.escape)="cerrarModalEliminar()"></div>
+    <div class="modal-dialog" style="max-width: 400px;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Eliminar cliente</h3>
+          <button type="button" class="modal-close" (click)="cerrarModalEliminar()" [disabled]="guardando">×</button>
+        </div>
+        <div class="modal-body">
+          <p>¿Estás seguro de eliminar a <strong>{{ clienteAEliminar.nombre }}</strong>?</p>
+          <p style="color: #888; font-size: 0.85rem;">Esta acción no se puede deshacer.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="cl-btn cl-btn-ghost" (click)="cerrarModalEliminar()" [disabled]="guardando">Cancelar</button>
+          <button type="button" class="cl-btn cl-btn-primary" (click)="ejecutarEliminar()" [disabled]="guardando" style="background: #d31219; border-color: #d31219;">
+            {{ guardando ? 'Eliminando...' : 'Eliminar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</section>
