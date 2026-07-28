@@ -18,6 +18,7 @@ export class LoginComponent implements OnInit {
   username = '';
   password = '';
   errorMessage = '';
+  guardando = false;
   private readonly loginService = inject(LoginService);
   private readonly router = inject(Router);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -37,13 +38,22 @@ export class LoginComponent implements OnInit {
   }
 
   async submit(): Promise<void> {
-    const ok = await this.loginService.login(this.username, this.password);
-    this.errorMessage = this.loginService.authError$.value;
+    if (this.guardando) return;
+    this.guardando = true;
+    this.errorMessage = '';
     this.cdr.markForCheck();
-    if (ok) {
-      this.inactivityService.startInactivityTimer();
-      this.activityDetector.detectUserActivity();
-      this.router.navigate(['/vista-general']);
+    try {
+      const ok = await this.loginService.login(this.username, this.password);
+      this.errorMessage = this.loginService.authError$.value;
+      this.cdr.markForCheck();
+      if (ok) {
+        this.inactivityService.startInactivityTimer();
+        this.activityDetector.detectUserActivity();
+        this.router.navigate(['/vista-general']);
+      }
+    } finally {
+      this.guardando = false;
+      this.cdr.markForCheck();
     }
   }
 }

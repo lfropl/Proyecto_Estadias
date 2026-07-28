@@ -64,6 +64,7 @@ export class VistaGeneral implements OnInit, OnDestroy {
   notificaciones: {id:string;mensaje:string;tipo:'ok'|'error'}[] = [];
   registroServicios: RegistroServicioRow[] = [this.crearFilaRegistro()];
   serviciosGeneral: ViajeRow[] = []; viajeDetalleId: string|null = null; comentarioDetalleInput = '';
+  guardando = false;
 
   get viajeDetalle(): ViajeRow|null { return this.serviciosGeneral.find(v=>v.id===this.viajeDetalleId)??null; }
   get tituloSeccion(): string { if(this.seccionActiva==='general')return'General';if(this.seccionActiva==='registro-servicios')return'Registro de servicios';const i=this.navItems.find(n=>n.id===this.seccionActiva);return i?.label??'General'; }
@@ -109,20 +110,26 @@ export class VistaGeneral implements OnInit, OnDestroy {
   prefijoCaja(t:RegistroTipoCaja){ return t==='thermo'?'TH':'20'; }
   cajaNumeroValido(row:RegistroServicioRow){ return true; } onUnidadDetalleChange(v:ViajeRow){ const u=this.unidadesDisponibles.find(x=>x.numeroEconomico===v.unidad); if(u){ (v as any).tipoUnidad=u.tipo; } }
 
-  registrarServicios(){
+  async registrarServicios(){
+    if(this.guardando)return;
     this.registroErrorMsg='';
     const errores=this.registroServicios.map((r,i)=>this.validarFilaRegistro(r,i)).filter((e):e is string=>!!e);
     if(errores.length){ this.registroErrorMsg=errores[0];return; }
     const nuevos=this.registroServicios.map(r=>this.mapearServicioPanel(r)).filter((i):i is ViajeRow=>i!==null);
     if(!nuevos.length)return;
-    this.serviciosGeneral=[...nuevos,...this.serviciosGeneral];
-    this.persistirServiciosGeneral();
-    this.registroServicios=[this.crearFilaRegistro()];
-    this.seccionActiva='general';
-    this.mostrarPopup('Servicio registrado exitosamente.');
+    this.guardando=true;this.cdr.markForCheck();
+    try{
+      this.serviciosGeneral=[...nuevos,...this.serviciosGeneral];
+      await this.persistirServiciosGeneral();
+      this.registroServicios=[this.crearFilaRegistro()];
+      this.seccionActiva='general';
+      this.mostrarPopup('Servicio registrado exitosamente.');
+    }finally{
+      this.guardando=false;this.cdr.markForCheck();
+    }
   }
 
-  actualizarEstatus(v:ViajeRow,e:Estatus){ if(v.archivosAdjuntos.length>0&&e!=='verde'){this.mostrarNotificacion('No se puede bajar estatus: el POD ya fue entregado.','error');v.estatus='verde';return;}v.estatus=e;this.persistirServiciosGeneral(); }
+  async actualizarEstatus(v:ViajeRow,e:Estatus){ if(this.guardando)return;if(v.archivosAdjuntos.length>0&&e!=='verde'){this.mostrarNotificacion('No se puede bajar estatus: el POD ya fue entregado.','error');v.estatus='verde';return;}v.estatus=e;this.guardando=true;this.cdr.markForCheck();try{await this.persistirServiciosGeneral();}finally{this.guardando=false;this.cdr.markForCheck();} }
   abrirDetalle(v:ViajeRow){ this.viajeDetalleId=v.id; }
   cerrarDetalle(){ this.viajeDetalleId=null; }
 
@@ -138,21 +145,30 @@ export class VistaGeneral implements OnInit, OnDestroy {
     v.seguimientos=v.seguimientos.filter((_,x)=>x!==i);
   }
 
-  guardarDetalle(){
+  async guardarDetalle(){
+    if(this.guardando)return;
     const v=this.viajeDetalle; if(!v)return;
     v.nombre=v.servicio.trim()||v.nombre;
     if(this.totalArchivosDetalle(v)>0) v.estatus='verde';
-    this.persistirServiciosGeneral();
-    this.mostrarPopup('Detalle del servicio actualizado.');
+    this.guardando=true;this.cdr.markForCheck();
+    try{
+      await this.persistirServiciosGeneral();
+      this.mostrarPopup('Detalle del servicio actualizado.');
+    }finally{
+      this.guardando=false;this.cdr.markForCheck();
+    }
   }
 
-  agregarComentarioDetalle(){
+  async agregarComentarioDetalle(){
+    if(this.guardando)return;
     const v=this.viajeDetalle; if(!v)return;
     const m=this.comentarioDetalleInput.trim(); if(!m){this.registroErrorMsg='Escribe un comentario antes de enviarlo.';return;}
     const a=this.loginService.obtenerSesionActiva();
     const c:ComentarioViaje={id:`cmt-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,autorNombre:a?`${a.nombre} ${a.apellido}`.trim():'Usuario',autorPuesto:a?.puesto||'Sin puesto',mensaje:m,fechaIso:new Date().toISOString()};
     v.comentarios=[...v.comentarios,c]; v.observaciones=v.comentarios.map(c=>`${c.autorNombre}: ${c.mensaje}`).join('\n');
-    this.comentarioDetalleInput='';this.registroErrorMsg='';this.persistirServiciosGeneral();
+    this.comentarioDetalleInput='';this.registroErrorMsg='';
+    this.guardando=true;this.cdr.markForCheck();
+    try{await this.persistirServiciosGeneral();}finally{this.guardando=false;this.cdr.markForCheck();}
   }
 
   formatoFechaComentario(f:string){ const d=new Date(f);if(Number.isNaN(d.getTime()))return f;return d.toLocaleString('es-MX',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); }
@@ -200,7 +216,7 @@ export class VistaGeneral implements OnInit, OnDestroy {
   }
 
   private crearFilaRegistro():RegistroServicioRow{ return{id:`rs-${this.nextRegistroId++}`,eta:'',origen:'',destino:'',clienteId:''}; }
-  private persistirServiciosGeneral(){ this.serviciosViaje.persistirLista(this.serviciosGeneral); }
+  private async persistirServiciosGeneral(){ await this.serviciosViaje.persistirLista(this.serviciosGeneral); }
   private base64ToBlob(b:string,m:string){const a=atob(b);const l=new Uint8Array(a.length);for(let i=0;i<a.length;i++)l[i]=a.charCodeAt(i);return new Blob([l],{type:m});}
   private listaArchivosPorCategoria(v:ViajeRow,c:'general'|'cartaPorte'){return c==='general'?v.archivosAdjuntos:v.archivosCartaPorte;}
   private totalArchivosDetalle(v:ViajeRow){return v.archivosAdjuntos.length+v.archivosCartaPorte.length;}

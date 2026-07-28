@@ -255,8 +255,8 @@
                       placeholder="Escribe un comentario para este viaje"
                       [(ngModel)]="comentarioDetalleInput"
                       (keydown.enter)="agregarComentarioDetalle()" />
-                    <button type="button" class="vg-action vg-action-primary vg-btn-inline" (click)="agregarComentarioDetalle()">
-                      Enviar
+                    <button type="button" class="vg-action vg-action-primary vg-btn-inline" (click)="agregarComentarioDetalle()" [disabled]="guardando">
+                      {{ guardando ? 'Enviando...' : 'Enviar' }}
                     </button>
                   </div>
                   @if (detalle.comentarios.length) {
@@ -322,7 +322,9 @@
                 </label>
               </div>
               <div class="vg-detail-actions">
-                <button type="button" class="vg-action vg-action-primary" (click)="guardarDetalle()">Guardar</button>
+                <button type="button" class="vg-action vg-action-primary" (click)="guardarDetalle()" [disabled]="guardando">
+                  {{ guardando ? 'Guardando...' : 'Guardar' }}
+                </button>
               </div>
             </section>
           }
@@ -334,7 +336,9 @@
                 @if (registroErrorMsg) { <div class="vg-help-error">{{ registroErrorMsg }}</div> }
               </div>
               <div class="vg-header-actions">
-                <button type="button" class="vg-action vg-action-primary" (click)="registrarServicios()">Registrar servicio</button>
+                <button type="button" class="vg-action vg-action-primary" (click)="registrarServicios()" [disabled]="guardando">
+                  {{ guardando ? 'Registrando...' : 'Registrar servicio' }}
+                </button>
               </div>
             </div>
             <div class="vg-table-wrap">

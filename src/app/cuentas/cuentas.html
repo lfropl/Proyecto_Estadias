@@ -98,8 +98,8 @@
                         [(ngModel)]="nuevoGasto.concepto" />
                       <input type="number" class="cu-input cu-input-monto" placeholder="Monto"
                         [(ngModel)]="nuevoGasto.monto" min="0" step="0.01" />
-                      <button type="button" class="cu-btn cu-btn-primary" (click)="agregarGasto()">
-                        + Agregar
+                      <button type="button" class="cu-btn cu-btn-primary" (click)="agregarGasto()" [disabled]="guardando">
+                        {{ guardando ? 'Agregando...' : '+ Agregar' }}
                       </button>
                     </div>
 
@@ -124,7 +124,7 @@
                               <td>{{ formatFecha(g.fechaIso) }}</td>
                               <td>
                                 <button type="button" class="cu-btn cu-btn-ghost cu-btn-sm"
-                                  (click)="eliminarGasto(v, g.id)">🗑</button>
+                                  (click)="eliminarGasto(v, g.id)" [disabled]="guardando">🗑</button>
                               </td>
                             </tr>
                           }

@@ -22,6 +22,7 @@ export class Cobranza implements OnDestroy {
   viajes: ViajeRow[] = [];
   errorMsg = '';
   exitoMsg = '';
+  guardando = false;
   private sub = Subscription.EMPTY;
 
   // Modal para registrar pago
@@ -78,8 +79,8 @@ export class Cobranza implements OnDestroy {
     this.reportePagoPdfSeleccionado = input?.files?.[0] || null;
   }
 
-  guardarPago(): void {
-    if (!this.viajeEnPago) return;
+  async guardarPago(): Promise<void> {
+    if (this.guardando || !this.viajeEnPago) return;
     this.errorMsg = '';
     this.exitoMsg = '';
 
@@ -94,41 +95,43 @@ export class Cobranza implements OnDestroy {
     }
 
     const viajeId = this.viajeEnPago.id;
+    this.guardando = true;
 
-    if (this.reportePagoPdfSeleccionado) {
-      if (this.reportePagoPdfSeleccionado.type !== 'application/pdf') {
-        this.errorMsg = 'El reporte de pago debe ser PDF.';
-        return;
-      }
-      if (this.reportePagoPdfSeleccionado.size > MAX_ADJUNTO_BYTES) {
-        this.errorMsg = 'El PDF no puede superar 1.5 MB.';
-        return;
-      }
+    try {
+      if (this.reportePagoPdfSeleccionado) {
+        if (this.reportePagoPdfSeleccionado.type !== 'application/pdf') {
+          this.errorMsg = 'El reporte de pago debe ser PDF.';
+          return;
+        }
+        if (this.reportePagoPdfSeleccionado.size > MAX_ADJUNTO_BYTES) {
+          this.errorMsg = 'El PDF no puede superar 1.5 MB.';
+          return;
+        }
 
-      leerArchivoBase64(this.reportePagoPdfSeleccionado)
-        .then((adjunto) => {
-          this.serviciosViaje.actualizarViaje(viajeId, (v) => {
-            v.reportePagoPdf = adjunto;
-            v.cobranzaMetodoPago = this.metodoPago;
-            v.cobranzaFechaPago = this.fechaPago;
-            v.cobranzaReferencia = this.referencia.trim() || undefined;
-            v.cobranzaTerminada = true;
-          });
-          this.exitoMsg = 'Pago registrado correctamente.';
-          this.cerrarCobranza();
-        })
-        .catch(() => {
-          this.errorMsg = 'No se pudo leer el PDF.';
+        const adjunto = await leerArchivoBase64(this.reportePagoPdfSeleccionado);
+        await this.serviciosViaje.actualizarViaje(viajeId, (v) => {
+          v.reportePagoPdf = adjunto;
+          v.cobranzaMetodoPago = this.metodoPago;
+          v.cobranzaFechaPago = this.fechaPago;
+          v.cobranzaReferencia = this.referencia.trim() || undefined;
+          v.cobranzaTerminada = true;
         });
-    } else {
-      this.serviciosViaje.actualizarViaje(viajeId, (v) => {
-        v.cobranzaMetodoPago = this.metodoPago;
-        v.cobranzaFechaPago = this.fechaPago;
-        v.cobranzaReferencia = this.referencia.trim() || undefined;
-        v.cobranzaTerminada = true;
-      });
-      this.exitoMsg = 'Pago registrado correctamente (sin reporte PDF).';
-      this.cerrarCobranza();
+        this.exitoMsg = 'Pago registrado correctamente.';
+        this.cerrarCobranza();
+      } else {
+        await this.serviciosViaje.actualizarViaje(viajeId, (v) => {
+          v.cobranzaMetodoPago = this.metodoPago;
+          v.cobranzaFechaPago = this.fechaPago;
+          v.cobranzaReferencia = this.referencia.trim() || undefined;
+          v.cobranzaTerminada = true;
+        });
+        this.exitoMsg = 'Pago registrado correctamente (sin reporte PDF).';
+        this.cerrarCobranza();
+      }
+    } catch {
+      this.errorMsg = 'No se pudo registrar el pago.';
+    } finally {
+      this.guardando = false;
     }
   }
 

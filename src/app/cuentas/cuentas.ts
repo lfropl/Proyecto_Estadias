@@ -23,6 +23,7 @@ export class Cuentas implements OnDestroy {
   nuevoGasto: { concepto: string; monto: number | null } = { concepto: '', monto: null };
   errorMsg = '';
   exitoMsg = '';
+  guardando = false;
 
   constructor() {
     this.sub = this.serviciosViaje.obtenerViajes$().subscribe((lista) => {
@@ -77,7 +78,8 @@ export class Cuentas implements OnDestroy {
 
   // ─── CRUD Gastos ─────────────────────────────────────────
 
-  agregarGasto(): void {
+  async agregarGasto(): Promise<void> {
+    if (this.guardando) return;
     const viaje = this.viajeSeleccionado;
     if (!viaje) return;
 
@@ -100,19 +102,34 @@ export class Cuentas implements OnDestroy {
       fechaIso: new Date().toISOString(),
     };
 
-    this.serviciosViaje.actualizarViaje(viaje.id, (v) => {
-      v.gastos = [...(v.gastos || []), gasto];
-    });
-    this.nuevoGasto = { concepto: '', monto: null };
-    this.errorMsg = '';
-    this.exitoMsg = `${concepto} por $${monto.toFixed(2)} agregado.`;
+    this.guardando = true;
+    try {
+      await this.serviciosViaje.actualizarViaje(viaje.id, (v) => {
+        v.gastos = [...(v.gastos || []), gasto];
+      });
+      this.nuevoGasto = { concepto: '', monto: null };
+      this.errorMsg = '';
+      this.exitoMsg = `${concepto} por $${monto.toFixed(2)} agregado.`;
+    } catch {
+      this.errorMsg = 'No se pudo agregar el gasto.';
+    } finally {
+      this.guardando = false;
+    }
   }
 
-  eliminarGasto(viaje: ViajeRow, gastoId: string): void {
-    this.serviciosViaje.actualizarViaje(viaje.id, (v) => {
-      v.gastos = (v.gastos || []).filter((g) => g.id !== gastoId);
-    });
-    this.errorMsg = '';
+  async eliminarGasto(viaje: ViajeRow, gastoId: string): Promise<void> {
+    if (this.guardando) return;
+    this.guardando = true;
+    try {
+      await this.serviciosViaje.actualizarViaje(viaje.id, (v) => {
+        v.gastos = (v.gastos || []).filter((g) => g.id !== gastoId);
+      });
+      this.errorMsg = '';
+    } catch {
+      this.errorMsg = 'No se pudo eliminar el gasto.';
+    } finally {
+      this.guardando = false;
+    }
   }
 
   // ─── Formateo ────────────────────────────────────────────

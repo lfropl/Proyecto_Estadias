@@ -141,7 +141,9 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="cb-btn cb-btn-ghost" (click)="cerrarCobranza()">Cancelar</button>
-          <button type="button" class="cb-btn cb-btn-primary" (click)="guardarPago()">Guardar pago</button>
+          <button type="button" class="cb-btn cb-btn-primary" (click)="guardarPago()" [disabled]="guardando">
+            {{ guardando ? 'Guardando...' : 'Guardar pago' }}
+          </button>
         </div>
       </div>
     </div>
